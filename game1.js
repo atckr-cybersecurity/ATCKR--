@@ -307,10 +307,10 @@ function answer(choice) {
 
   // Pick a random response title
   const titleSets = {
-    ct: ['Scam busted! 🕵️', 'Great catch!', 'You spotted it!', 'Nice detective work!'],
-    cs: ["That's safe! ✅", 'Good call!', 'Correct!', 'You got it right!'],
-    wt: ['That was a trap! 🪤', 'Scammer got ya!', 'Watch those links!', 'Oops — that was fake!'],
-    ws: ['That was actually safe!', 'Not every text is bad!', 'That one was legit!']
+    ct: ['Scam busted! 🕵️', 'Great catch!', 'You spotted it!', 'Nice detective work!', 'Caught em red handed!'],
+    cs: ["That's safe! ✅", 'Good call!', 'Correct!', 'You got it right!', 'Good eye there, expert!'],
+    wt: ['That was a trap! 🪤', 'Scammer got ya!', 'Watch those links!', 'Oh thats not!'],
+    ws: ['That was actually safe!', 'Not every text is bad!', 'That one was legit!', 'Watch what it says!']
   };
   const iconMap = { ct: '🎉', cs: '✅', wt: '😬', ws: '🤔' };
   const key = correct ? (sc.isTrap ? 'ct' : 'cs') : (sc.isTrap ? 'wt' : 'ws');
@@ -397,7 +397,9 @@ function showCombo(streak) {
     4: '🔥🔥🔥 Unstoppable!',
     5: '⚡ Cyber Hero!',
     6: '🌟 Legendary!',
-    7: '💥 Unbeatable!'
+    7: '💥 Let him cook!',
+    8: '🔱 Unstoppable!',
+    9: '🎊 MVP Status!',
   };
 
   const el = document.getElementById('combo');
@@ -558,7 +560,7 @@ function goNext() {
     && localStorage.getItem('game1_passed') === 'true';
 
   if (passed) {
-    window.location.href = 'game2.html'; // connect to Game 2 here
+    window.location.href = '../pages/cyberdefense.html'; // connect to Game 2 here
   } else {
     showToast('💡 Try to get at least 60% correct to unlock Game 2!');
   }

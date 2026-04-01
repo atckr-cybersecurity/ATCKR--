@@ -560,7 +560,7 @@ function goNext() {
     && localStorage.getItem('game1_passed') === 'true';
 
   if (passed) {
-    window.location.href = '../pages/cyberdefense.html'; // connect to Game 2 here
+    window.location.href = 'cyberdefense.html'; // connect to Game 2 here
   } else {
     showToast('💡 Try to get at least 60% correct to unlock Game 2!');
   }

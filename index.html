@@ -13,40 +13,34 @@
         <div class="container">
             <a href="#contentstart" class="skip-navigation">Skip Navigation</a>
 
-        <div class="logo-header">
-            <a href="index.html">
-                <img src="atckr.png" alt="ATCKR Logo" class="logo">
-            </a>
-        </div>
+            <div class="logo-header">
+                <a href="index.html">
+                    <img src="photos/atckr.png" alt="ATCKR Logo" class="logo">
+                </a>
+            </div>
 
             <nav class="site-nav">
                 <ul>
                     <li><a href="about.html">About</a></li>
                     <li><a href="vocab.html">Vocab!</a></li>
                     <li><a href="prevention.html">Prevention</a></li> 
-                    <li><a href="login.html">Login/Sign-up</a></li>
+
+                    <!-- auth buttons -->
+                    <li id="loginNav"><a href="login.html">Login/Sign-up</a></li>
+                    <li id="profileNav" style="display:none;"><a href="profile.html">Profile</a></li>
+                    <li id="logoutNav" style="display:none;"><a href="#" id="logoutBtn">Logout</a></li>
+
                 </ul>
             </nav>
         </div>
     </header>
 
-    <!-- MAIN -->
+    <!-- START BUTTON -->
     <main id="contentstart">
-
-        <!-- HERO SECTION -->
-        <div class="hero">
-            <h1 class="hero-title">Enter the Web.<br>Play Smart. Stay Safe.</h1>
-            <p class="hero-tagline">An interactive mission for the next generation of defenders.</p>
-            <!-- TYPING TERMINAL -->
-            <div class="terminal">
-                <span class="terminal-prompt">&gt; </span><span id="typed"></span><span class="cursor">_</span>
-            </div>
-        </div>
-
-        <!-- START BUTTON -->
         <div class="start-cont">
-            <a href="textortrap.html" class="start">START</a>
+            <button class="start" onclick="window.location.href='textortrap.html'">START</button>
         </div>
+    </main>
 
         <!-- ARTICLES -->
         <div class="articles">
@@ -58,7 +52,7 @@
                     <p>Check out this article about password security!</p>
                 </div>
             </a>
-
+        
             <a href="https://cybernews.com/news/datavant-phishing-attack-data-leak/" class="article-card">
                 <img src="article2.jpg" alt="Article Image">
                 <div class="article-text">
@@ -66,7 +60,7 @@
                     <p>Check out this article about phishing!</p>
                 </div>
             </a>
-
+        
             <a href="https://www.bbc.co.uk/bitesize/articles/zcmbgk7#zm4kwnb" class="article-card">
                 <img src="article3.jpg" alt="Article Image">
                 <div class="article-text">
@@ -78,7 +72,7 @@
         </div>
     </main>
 
-    <!-- FOOTER -->
+    <!-- footer -->
     <footer>
         <div class="copyright">
             &copy; 2026 ATCKR Corporation.
@@ -88,9 +82,49 @@
             </div>
         </div>
     </footer>
-    
-    <!-- index script for the animations -->
-    <script src="index.js"></script>
+
+    <!-- firebase auth control -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD_XcFPJnBqu95_YjWTRsjkWnwU5wHlA-s",
+            authDomain: "atckr-c6d3d.firebaseapp.com",
+            projectId: "atckr-c6d3d",
+            storageBucket: "atckr-c6d3d.firebasestorage.app",
+            messagingSenderId: "834010699386",
+            appId: "1:834010699386:web:04134df603f29119010dc3",
+            measurementId: "G-SHF21PMJ8R"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        const loginNav = document.getElementById("loginNav");
+        const profileNav = document.getElementById("profileNav");
+        const logoutNav = document.getElementById("logoutNav");
+        const logoutBtn = document.getElementById("logoutBtn");
+
+        // check login state
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                loginNav.style.display = "none";
+                profileNav.style.display = "inline";
+                logoutNav.style.display = "inline";
+            } else {
+                loginNav.style.display = "inline";
+                profileNav.style.display = "none";
+                logoutNav.style.display = "none";
+            }
+        });
+
+        // logout
+        logoutBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            signOut(auth);
+        });
+    </script>
 
 </body>
 </html>

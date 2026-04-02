@@ -166,6 +166,13 @@ function startGame() {
   G.hints     = 3;
   G.bonus     = 0;
   G.answered  = false;
+
+  // Clear any stale pass data from a previous session so it
+  // cannot bleed through and unlock the next game incorrectly
+  localStorage.removeItem('game1_passed');
+  localStorage.removeItem('game1_score');
+  localStorage.removeItem('game1_stars');
+
   showScreen('s-game');
   loadQuestion();
 }
@@ -507,9 +514,9 @@ function renderStreak() {
    game hub knows this level was completed.
 ------------------------------------------------------- */
 function endGame() {
-  const total   = G.scenarios.length;
-  const pct     = G.correct / total;
-  const stars   = pct >= 0.9 ? 3 : pct >= 0.65 ? 2 : 1;
+  const total = G.scenarios.length;
+  const pct   = G.correct / total;
+  const stars = pct >= 0.9 ? 3 : pct >= 0.65 ? 2 : 1;
 
   // Pick result data based on stars
   const results = {
@@ -540,7 +547,7 @@ function endGame() {
     setTimeout(spawnConfetti, 350);
   }
 
-  // Save progress to localStorage so the game hub can read it
+  // Always write fresh results — never carry over a stale pass
   const passed = pct >= 0.6;
   localStorage.setItem('game1_passed', passed ? 'true' : 'false');
   localStorage.setItem('game1_score',  G.score);
@@ -552,16 +559,15 @@ function endGame() {
 
 /* -------------------------------------------------------
    GO TO NEXT GAME
-   Called by the "Next Game →" button on results screen.
-   Change the href below to point to your Game 2 file.
+   Only checks game1_passed which is written fresh at
+   the end of every playthrough — no stale score bleed.
 ------------------------------------------------------- */
 function goNext() {
-  const passed = parseFloat(localStorage.getItem('game1_score') || 0) > 0
-    && localStorage.getItem('game1_passed') === 'true';
+  const passed = localStorage.getItem('game1_passed') === 'true';
 
   if (passed) {
-    window.location.href = 'cyberdefense.html'; // connect to Game 2 here
+    window.location.href = 'cyberdefense.html';
   } else {
     showToast('💡 Try to get at least 60% correct to unlock Game 2!');
   }
-} 
+}

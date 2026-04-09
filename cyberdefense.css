@@ -2,9 +2,8 @@
    ATCKR — Cyber Defense Frenzy (Game 2)
    Stylesheet: game2.css
    Description: All styles for the intro, game,
-   sidebar, HUD, tutorial, and results screens.
+   sidebar, HUD, and results screens.
 ===================================================== */
-
 
 /* -----------------------------------------------
    CSS VARIABLES & RESET
@@ -43,7 +42,6 @@ body {
   overflow: hidden;
 }
 
-
 /* -----------------------------------------------
    PARTICLE BACKGROUND
 ----------------------------------------------- */
@@ -53,7 +51,6 @@ body {
   pointer-events: none;
   z-index: 0;
 }
-
 
 /* -----------------------------------------------
    SCREEN SYSTEM
@@ -69,7 +66,6 @@ body {
 .screen.active {
   display: flex;
 }
-
 
 /* -----------------------------------------------
    KEYFRAME ANIMATIONS
@@ -103,7 +99,6 @@ body {
   50%        { box-shadow: 0 0 0 8px rgba(0, 229, 255, 0); }
 }
 
-
 /* -----------------------------------------------
    COMBO POPUP
 ----------------------------------------------- */
@@ -122,7 +117,6 @@ body {
 #combo.go {
   animation: comboGo 1s ease forwards;
 }
-
 
 /* -----------------------------------------------
    INTRO SCREEN  (#s-intro)
@@ -197,6 +191,40 @@ body {
 .intro-card .ic-title { font-family: var(--fw); font-size: 0.82rem; color: var(--accent); margin-bottom: 3px; }
 .intro-card .ic-desc  { font-size: 0.7rem; color: var(--muted); line-height: 1.4; }
 
+/* -----------------------------------------------
+   INTRO BUTTON ROW
+----------------------------------------------- */
+.intro-btn-row {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 20px;
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+.btn-tutorial {
+  font-family: var(--fw);
+  font-size: 1.1rem;
+  padding: 13px 32px;
+  background: transparent;
+  color: var(--accent);
+  border: 2px solid var(--accent);
+  border-radius: 50px;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, transform 0.18s;
+  letter-spacing: 0.03em;
+}
+
+.btn-tutorial:hover {
+  background: var(--accent);
+  color: #001a22;
+  transform: scale(1.04);
+}
+
+
 /* Start button */
 .btn-start {
   font-family: var(--fw);
@@ -217,110 +245,6 @@ body {
   transform: scale(1.05);
   filter: brightness(1.12);
 }
-
-
-/* -----------------------------------------------
-   TUTORIAL SECTION
------------------------------------------------ */
-.tutorial-section {
-  width: 100%;
-  max-width: 700px;
-  margin: 4px 0 0;
-  animation: fadeIn 0.55s 0.25s ease both;
-}
-
-.tutorial-title {
-  font-family: var(--fw);
-  font-size: 0.82rem;
-  color: var(--accent);
-  text-align: center;
-  margin-bottom: 10px;
-  letter-spacing: 0.06em;
-}
-
-.tutorial-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 9px;
-}
-
-.tut-card {
-  background: var(--panel2);
-  border-radius: 12px;
-  padding: 11px 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.tut-card-worm     { border: 1px solid rgba(255, 107,  53, 0.4); }
-.tut-card-phishing { border: 1px solid rgba(255, 211,  42, 0.4); }
-.tut-card-spyware  { border: 1px solid rgba(165,  94, 234, 0.4); }
-.tut-card-ransom   { border: 1px solid rgba(255,  71,  87, 0.4); }
-
-.tut-header {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-}
-
-.tut-emoji { font-size: 1.4rem; flex-shrink: 0; }
-
-.tut-name {
-  font-family: var(--fw);
-  font-size: 0.68rem;
-  color: #fff;
-}
-
-.tut-tag {
-  font-size: 0.53rem;
-  font-weight: 800;
-  padding: 2px 6px;
-  border-radius: 8px;
-  letter-spacing: 0.04em;
-  align-self: flex-start;
-}
-
-.tut-tag-worm     { background: rgba(255, 107,  53, 0.18); color: #ff6b35; }
-.tut-tag-phishing { background: rgba(255, 211,  42, 0.18); color: #ffd32a; }
-.tut-tag-spyware  { background: rgba(165,  94, 234, 0.18); color: #a55eea; }
-.tut-tag-ransom   { background: rgba(255,  71,  87, 0.18); color: #ff4757; }
-
-.tut-stat {
-  font-size: 0.62rem;
-  color: var(--muted);
-  line-height: 1.4;
-}
-
-.tut-stat strong { color: #fff; }
-
-.tut-kill {
-  font-size: 0.58rem;
-  font-weight: 800;
-  padding: 3px 7px;
-  border-radius: 6px;
-  text-align: center;
-  margin-top: 2px;
-}
-
-.tut-kill-worm     { background: rgba(255, 107,  53, 0.12); color: #ff6b35; }
-.tut-kill-phishing { background: rgba(255, 211,  42, 0.12); color: #ffd32a; }
-.tut-kill-spyware  { background: rgba(165,  94, 234, 0.12); color: #a55eea; }
-.tut-kill-ransom   { background: rgba(255,  71,  87, 0.12); color: #ff4757; }
-
-.sell-tip {
-  font-size: 0.67rem;
-  color: var(--muted);
-  text-align: center;
-  margin-top: 8px;
-  padding: 7px 14px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-}
-
-.sell-tip strong { color: var(--yellow); }
-
 
 /* -----------------------------------------------
    GAME SCREEN  (#s-game)
@@ -426,7 +350,6 @@ body {
   z-index: 2;
 }
 
-
 /* -----------------------------------------------
    SIDEBAR
 ----------------------------------------------- */
@@ -462,6 +385,7 @@ body {
   transition: border-color 0.18s, background 0.18s, transform 0.15s;
   text-align: center;
   position: relative;
+  overflow: visible;
 }
 
 .td-card:hover {
@@ -506,7 +430,6 @@ body {
   line-height: 1.4;
   padding: 0 4px;
 }
-
 
 /* -----------------------------------------------
    RESULTS SCREEN  (#s-results)
@@ -618,271 +541,164 @@ body {
 .res-btn.primary         { background: var(--accent); color: #001a22; }
 .res-btn.secondary       { background: transparent; color: var(--muted); border: 1px solid var(--border); }
 
+/* -----------------------------------------------
+   RESPONSIVE — iPhone, Android, Tablet
+----------------------------------------------- */
+
+/* ── Tablet (≤768px) ── */
+@media (max-width: 768px) {
+
+  /* Intro screen scrolls comfortably */
+  #s-intro,
+
+  .intro-icon     { font-size: 3rem; }
+  .intro-title    { font-size: clamp(1.4rem, 6vw, 2rem); }
+  .intro-cards    { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .intro-btn-row  { flex-direction: column; gap: 10px; }
+  .btn-start,
+
+  /* Game HUD — smaller text, hide title */
+  .hud-title      { display: none; }
+  .hud-stat       { font-size: 0.72rem; padding: 3px 7px; gap: 4px; }
+
+  /* Sidebar — slimmer on tablet */
+  #sidebar        { width: 140px; padding: 8px 6px; gap: 5px; }
+
+  /* Results */
+  #s-results      { padding: 20px 14px; }
+  .res-breakdown  { grid-template-columns: 1fr 1fr; }
+}
+
+/* ── Mobile phones (≤480px — iPhone SE, iPhone 14, most Android) ── */
+@media (max-width: 480px) {
+
+  /* ---- Intro ---- */
+  #s-intro        { padding: 16px 12px 36px; }
+  .intro-badge    { font-size: 0.58rem; }
+  .intro-icon     { font-size: 2.4rem; margin-bottom: 4px; }
+  .intro-title    { font-size: clamp(1.2rem, 7vw, 1.6rem); }
+  .intro-sub      { font-size: 0.8rem; margin-bottom: 12px; }
+  .intro-cards    { grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 12px; }
+  .intro-card     { padding: 10px 8px; }
+  .intro-card .ic-emoji { font-size: 1.4rem; }
+  .intro-card .ic-title { font-size: 0.7rem; }
+  .intro-card .ic-desc  { font-size: 0.6rem; }
+
+  /* ---- Game HUD ----
+     Stack HUD into two rows on phone so stats don't get cut off */
+  #hud {
+    padding: 5px 8px;
+    gap: 5px;
+    justify-content: space-between;
+  }
+  .hud-stat       { font-size: 0.65rem; padding: 3px 6px; gap: 3px; }
+  .lives-track    { max-width: 60px; }
+
+  /* ---- Game layout — sidebar moves to bottom on phone ----
+     This is the most important mobile fix: on a 375px screen,
+     a side-by-side sidebar + canvas is too cramped.
+     We move the sidebar below the canvas as a horizontal strip. */
+  #game-layout {
+    flex-direction: column;
+  }
+
+  #canvas-wrap {
+    flex: 1;
+    min-height: 0;
+  }
+
+  #sidebar {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    height: auto;
+    border-left: none;
+    border-top: 1px solid var(--border);
+    padding: 6px 8px;
+    gap: 6px;
+    align-items: center;
+    flex-shrink: 0;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Hide the DEFENSES label in horizontal mode */
+  .sb-label { display: none; }
+
+  /* Tower cards go side by side horizontally */
+  .td-card {
+    flex-shrink: 0;
+    width: 72px;
+    padding: 6px 4px;
+  }
+
+  .td-card .tc-emoji { font-size: 1.5rem; }
+  .td-card .tc-name  { font-size: 0.55rem; }
+  .td-card .tc-cost  { font-size: 0.52rem; }
+  .td-card .tc-desc  { display: none; }  /* too small — tooltip covers it */
+
+  /* Sell button sits at the end of the horizontal strip */
+  .sb-tip  { display: none; }
+  #btnSell {
+    flex-shrink: 0;
+    font-size: 0.6rem;
+    padding: 6px 10px;
+    white-space: nowrap;
+    margin-left: auto;
+  }
+
+  /* Tooltips on mobile — handled by JS body-level tooltip */
+
+  /* ---- Results ---- */
+  #s-results      { padding: 16px 12px; }
+  .res-trophy     { font-size: 3rem; }
+  .res-title      { font-size: clamp(1.2rem, 6vw, 1.8rem); }
+  .res-score      { font-size: 1.6rem; }
+  .res-stars      { font-size: 1.4rem; }
+  .res-breakdown  { grid-template-columns: 1fr 1fr; max-width: 100%; }
+  .bd-cell .bd-val { font-size: 1.1rem; }
+  .res-btns       { flex-direction: column; align-items: center; }
+  .res-btn        { width: 100%; max-width: 260px; text-align: center; }
+}
+
+/* ── Very small phones (≤360px — iPhone SE 1st gen, Galaxy A series) ── */
+@media (max-width: 360px) {
+  .hud-stat       { font-size: 0.58rem; padding: 2px 5px; }
+  .td-card        { width: 62px; }
+  .td-card .tc-emoji { font-size: 1.3rem; }
+  .intro-cards    { grid-template-columns: 1fr 1fr; }
+}
+
+/* ── Touch device — tooltips handled via JS tap ── */
+@media (hover: none) and (pointer: coarse) {
+  #td-tooltip { font-size: 0.72rem; }
+}
 
 /* -----------------------------------------------
-   RESPONSIVE
+   SIDEBAR TOOLTIPS
+   The tooltip is a single #td-tooltip div appended
+   to <body> and positioned via JS — this way it is
+   never clipped by the sidebar's overflow or
+   stacking context, and never overlaps card text.
 ----------------------------------------------- */
-@media (max-width: 540px) {
-  #sidebar           { width: 135px; }
-  .td-card .tc-emoji { font-size: 1.4rem; }
-  .hud-title         { display: none; }
-  .tut-page-grid     { grid-template-columns: 1fr; }
-  .tut-ref-grid      { grid-template-columns: 1fr 1fr; }
-}
-
-
-/* -----------------------------------------------
-   INTRO BUTTON ROW
------------------------------------------------ */
-.intro-btn-row {
-  display: flex;
-  gap: 14px;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  margin-top: 20px;
-  margin-bottom: 10px;
-  width: 100%;
-}
-
-.btn-tutorial {
-  font-family: var(--fw);
-  font-size: 1.1rem;
-  padding: 13px 32px;
-  background: transparent;
-  color: var(--accent);
-  border: 2px solid var(--accent);
-  border-radius: 50px;
-  cursor: pointer;
-  transition: background 0.18s, color 0.18s, transform 0.18s;
-  letter-spacing: 0.03em;
-}
-
-.btn-tutorial:hover {
-  background: var(--accent);
-  color: #001a22;
-  transform: scale(1.04);
-}
-
-
-/* -----------------------------------------------
-   TUTORIAL PAGE  (#s-tutorial)
------------------------------------------------ */
-#s-tutorial {
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 28px 20px 50px;
-  overflow-y: auto;
-  gap: 20px;
-}
-
-.tut-page-header {
-  text-align: center;
-  animation: fadeIn 0.4s ease both;
-}
-
-.tut-page-title {
-  font-family: var(--fw);
-  font-size: clamp(1.4rem, 4vw, 2rem);
-  color: var(--accent);
-  text-shadow: 0 0 20px rgba(0,229,255,0.5);
-  margin-bottom: 6px;
-}
-
-.tut-page-sub {
-  font-size: 0.88rem;
-  color: var(--muted);
-}
-
-.tut-page-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 14px;
-  width: 100%;
-  max-width: 860px;
-  animation: fadeIn 0.4s 0.1s ease both;
-}
-
-.tut-page-card {
-  background: var(--panel2);
-  border-radius: 14px;
-  padding: 18px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.tut-page-emoji { font-size: 2.4rem; text-align: center; }
-
-.tut-page-name {
-  font-family: var(--fw);
-  font-size: 1rem;
-  color: #fff;
-  text-align: center;
-}
-
-.tut-page-tag {
-  font-size: 0.58rem;
-  font-weight: 800;
-  padding: 3px 8px;
-  border-radius: 8px;
-  letter-spacing: 0.05em;
-  align-self: center;
-  text-transform: uppercase;
-}
-
-.tut-page-body {
-  font-size: 0.75rem;
-  color: rgba(255,255,255,0.7);
-  line-height: 1.6;
-}
-
-.tut-page-body strong { color: #fff; }
-
-.tut-page-towers {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 4px;
-}
-
-.tut-tower {
-  font-size: 0.65rem;
-  padding: 3px 9px;
-  border-radius: 6px;
-  background: rgba(255,255,255,0.07);
-  border: 1px solid rgba(255,255,255,0.15);
-  color: rgba(255,255,255,0.7);
-}
-
-.tut-tower-highlight {
-  background: rgba(0,229,255,0.12);
-  border-color: rgba(0,229,255,0.4);
-  color: var(--accent);
-  font-weight: 800;
-}
-
-.tut-tower-ransom {
-  background: rgba(255,71,87,0.12);
-  border-color: rgba(255,71,87,0.4);
-  color: var(--red);
-}
-
-/* Reuse existing tut-tag colors */
-.tut-tag-worm     { background: rgba(255,107,53,0.18); color: #ff6b35; }
-.tut-tag-phishing { background: rgba(255,211,42,0.18); color: #ffd32a; }
-.tut-tag-spyware  { background: rgba(165,94,234,0.18); color: #a55eea; }
-.tut-tag-ransom   { background: rgba(255,71,87,0.18);  color: #ff4757; }
-
-.tut-card-worm     { border: 1px solid rgba(255,107,53,0.4); }
-.tut-card-phishing { border: 1px solid rgba(255,211,42,0.4); }
-.tut-card-spyware  { border: 1px solid rgba(165,94,234,0.4); }
-.tut-card-ransom   { border: 1px solid rgba(255,71,87,0.4);  }
-
-
-/* Tower quick-reference strip */
-.tut-towers-ref {
-  width: 100%;
-  max-width: 860px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 16px 18px;
-  animation: fadeIn 0.4s 0.2s ease both;
-}
-
-.tut-ref-title {
-  font-family: var(--fw);
-  font-size: 0.82rem;
-  color: var(--accent);
-  margin-bottom: 12px;
-  text-align: center;
-  letter-spacing: 0.06em;
-}
-
-.tut-ref-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 10px;
-}
-
-.tut-ref-card {
-  background: var(--panel2);
-  border-radius: 10px;
-  padding: 10px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.tut-ref-emoji { font-size: 1.5rem; }
-
-.tut-ref-name {
-  font-family: var(--fw);
-  font-size: 0.68rem;
-  color: #fff;
-}
-
-.tut-ref-hits {
-  font-size: 0.63rem;
-  color: var(--muted);
-  line-height: 1.4;
-}
-
-.tut-page-btns {
-  display: flex;
-  gap: 14px;
-  justify-content: center;
-  flex-wrap: wrap;
-  animation: fadeIn 0.4s 0.3s ease both;
-}
-
-.btn-back-tut {
-  font-family: var(--fw);
-  font-size: 0.9rem;
-  padding: 11px 28px;
-  background: transparent;
-  color: var(--muted);
-  border: 1px solid var(--border);
-  border-radius: 50px;
-  cursor: pointer;
-  transition: color 0.18s, border-color 0.18s;
-}
-
-.btn-back-tut:hover { color: #fff; border-color: rgba(255,255,255,0.4); }
-
-
-/* -----------------------------------------------
-   SIDEBAR TOOLTIPS  (#4)
-   Each .td-card is position:relative.
-   .tc-tooltip pops up on hover above the card.
------------------------------------------------ */
-.td-card {
-  position: relative;
-}
-
-.tc-tooltip {
+#td-tooltip {
   display: none;
-  position: absolute;
-  right: calc(100% + 10px);
-  top: 0;
-  width: 210px;
+  position: fixed;
+  z-index: 9999;
+  width: 220px;
   background: #0a1828;
   border: 1px solid var(--accent);
   border-radius: 10px;
-  padding: 10px 12px;
-  font-size: 0.68rem;
+  padding: 11px 13px;
+  font-size: 0.7rem;
+  font-family: var(--fn);
   color: var(--text);
-  line-height: 1.55;
-  z-index: 999;
+  line-height: 1.6;
   pointer-events: none;
-  box-shadow: 0 0 18px rgba(0,229,255,0.2);
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.25);
 }
 
-.tc-tooltip strong { color: var(--accent); }
+#td-tooltip.visible { display: block; }
 
-.td-card:hover .tc-tooltip {
-  display: block;
-}
-
+#td-tooltip strong  { color: var(--accent); display: block; margin-bottom: 4px; font-size: 0.75rem; }

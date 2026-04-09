@@ -53,8 +53,8 @@
     </div>
 
     <div class="intro-btn-row">
-      <button class="btn-tutorial" onclick="window.location.href='tutorial.html'">📖 View Tutorial</button>
-      <button class="btn-start"    onclick="startGame()">▶ Start Game</button>
+        <button class="btn-tutorial" onclick="window.location.href='tutorial.html'">📖 View Tutorial</button>
+        <button class="btn-start" onclick="startGame()">▶ Start Game</button>
     </div>
 
   </section>
@@ -152,6 +152,46 @@
       <button class="res-btn primary"   onclick="goNext()">Next Game →</button>
       <button class="res-btn secondary" onclick="startGame()">↺ Play Again</button>
     </div>
+    <div id="quizModal" class="quiz-modal">
+        <div class="quiz-box">
+          <h3 class="quiz-title">Cyber Check ⚡</h3>
+          <p class="quiz-sub">Answer these 3 quick questions about what you learned.</p>
+      
+          <form id="quizForm" action="https://formspree.io/f/xwponean" method="POST">
+            <input type="hidden" name="game" value="Cyber Defense Frenzy">
+            <input type="hidden" name="screen" value="Post-Game Quiz">
+            <input type="hidden" name="quiz_score" id="quizScoreInput">
+      
+            <div class="quiz-question">
+              <p>1. Which defense can detect hidden spyware?</p>
+              <label><input type="radio" name="Question 1" value="Firewall" required> Firewall</label>
+              <label><input type="radio" name="Question 1" value="Antivirus"> Antivirus</label>
+              <label><input type="radio" name="Question 1" value="VPN Shield"> VPN Shield</label>
+            </div>
+      
+            <div class="quiz-question">
+              <p>2. Why are software updates important for cybersecurity?</p>
+              <label><input type="radio" name="Question 2" value="They help hackers attack faster" required> They help hackers attack faster</label>
+              <label><input type="radio" name="Question 2" value="They patch security holes"> They patch security holes</label>
+              <label><input type="radio" name="Question 2" value="They delete all your files"> They delete all your files</label>
+            </div>
+      
+            <div class="quiz-question">
+              <p>3. What does a firewall do?</p>
+              <label><input type="radio" name="Question 3" value="Monitors and filters network traffic" required> Monitors and filters network traffic</label>
+              <label><input type="radio" name="Question 3" value="Steals passwords"> Steals passwords</label>
+              <label><input type="radio" name="Question 3" value="Spreads malware"> Spreads malware</label>
+            </div>
+      
+            <div id="quizResult" class="quiz-result"></div>
+      
+            <div class="quiz-btns">
+              <button type="submit" class="quiz-btn primary">Submit Answers</button>
+              <button type="button" class="quiz-btn secondary" onclick="closeQuiz()">Close</button>
+            </div>
+          </form>
+        </div>
+      </div>
   </section>
 
 

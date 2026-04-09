@@ -2,8 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ATCKR — Cyberdefense Frenzy</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>ATCKR — Cyber Defense Frenzy</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
@@ -11,11 +13,10 @@
 </head>
 <body>
 
-  <!-- Particle starfield -->
   <canvas id="particles"></canvas>
-
-  <!-- Combo streak popup -->
   <div id="combo"></div>
+  <!-- Single floating tooltip — positioned by JS, never clipped by sidebar -->
+  <div id="td-tooltip"></div>
 
 
   <!-- ====================================================
@@ -25,10 +26,9 @@
 
     <div class="intro-badge">ATCKR · Game 2 of 3</div>
     <div class="intro-icon">🛡️</div>
-    <h1 class="intro-title">Cyberdefense Frenzy</h1>
+    <h1 class="intro-title">Cyber Defense Frenzy</h1>
     <p class="intro-sub">Stop the malware before it reaches your computer!</p>
 
-    <!-- How-to-play cards -->
     <div class="intro-cards">
       <div class="intro-card">
         <span class="ic-emoji">🧱</span>
@@ -52,71 +52,10 @@
       </div>
     </div>
 
-    <!-- Tutorial — Know Your Enemies -->
-    <div class="tutorial-section">
-      <div class="tutorial-title">📖 Know Your Enemies</div>
-      <div class="tutorial-grid">
-
-        <div class="tut-card tut-card-worm">
-          <div class="tut-header">
-            <span class="tut-emoji">🐛</span>
-            <span class="tut-name">Worm</span>
-          </div>
-          <span class="tut-tag tut-tag-worm">FASTEST · LEAST DAMAGE</span>
-          <div class="tut-stat">
-            Copies itself and spreads rapidly.<br>
-            <strong>Speed:</strong> Very Fast &nbsp;|&nbsp; <strong>-1 ❤️</strong>
-          </div>
-          <div class="tut-kill tut-kill-worm">✅ Any tower stops it</div>
-        </div>
-
-        <div class="tut-card tut-card-phishing">
-          <div class="tut-header">
-            <span class="tut-emoji">🎣</span>
-            <span class="tut-name">Phishing</span>
-          </div>
-          <span class="tut-tag tut-tag-phishing">FAST · MEDIUM DAMAGE</span>
-          <div class="tut-stat">
-            Tricks you with fake messages to steal passwords.<br>
-            <strong>Speed:</strong> Fast &nbsp;|&nbsp; <strong>-2 ❤️</strong>
-          </div>
-          <div class="tut-kill tut-kill-phishing">🧱 Firewall &nbsp;·&nbsp; 🔍 Antivirus</div>
-        </div>
-
-        <div class="tut-card tut-card-spyware">
-          <div class="tut-header">
-            <span class="tut-emoji">🕵️</span>
-            <span class="tut-name">Spyware</span>
-          </div>
-          <span class="tut-tag tut-tag-spyware">INVISIBLE TO FIREWALLS</span>
-          <div class="tut-stat">
-            Flickers — it's stealthy and <strong>bypasses Firewalls!</strong><br>
-            <strong>-3 ❤️</strong> if it gets through
-          </div>
-          <div class="tut-kill tut-kill-spyware">🔄 Updater ONLY</div>
-        </div>
-
-        <div class="tut-card tut-card-ransom">
-          <div class="tut-header">
-            <span class="tut-emoji">🔒</span>
-            <span class="tut-name">Ransomware</span>
-          </div>
-          <span class="tut-tag tut-tag-ransom">SLOWEST · MOST DANGEROUS</span>
-          <div class="tut-stat">
-            Big, slow and deadly — locks all your files!<br>
-            <strong>Speed:</strong> Slow &nbsp;|&nbsp; <strong>-5 ❤️</strong>
-          </div>
-          <div class="tut-kill tut-kill-ransom">🔐 VPN Shield ONLY</div>
-        </div>
-
-      </div>
-
-      <div class="sell-tip">
-        💡 <strong>To sell a tower:</strong> Click it once to select, then click it again to sell for gold!
-      </div>
+    <div class="intro-btn-row">
+      <button class="btn-tutorial" onclick="window.location.href='tutorial.html'">📖 View Tutorial</button>
+      <button class="btn-start"    onclick="startGame()">▶ Start Game</button>
     </div>
-
-    <button class="btn-start" onclick="startGame()">▶ Start Game</button>
 
   </section>
 
@@ -128,11 +67,11 @@
 
     <!-- HUD -->
     <div id="hud">
-      <span class="hud-title">🖥️ CYBER DEFENDERS</span>
+      <span class="hud-title">🖥️ Cyber Defenders</span>
       <div class="hud-stat"><span class="hs-icon">💰</span><span id="tdGold">100</span></div>
       <div class="hud-stat">
         <span class="hs-icon">❤️</span>
-        <span id="tdLives">15</span>
+        <span id="tdLives">20</span>
         <div class="lives-track"><div id="tdLivesBar"></div></div>
       </div>
       <div class="hud-stat"><span class="hs-icon">🌊</span><span id="tdWave">0/5</span></div>
@@ -144,49 +83,48 @@
     <!-- Game layout -->
     <div id="game-layout">
 
-      <!-- Canvas -->
       <div id="canvas-wrap">
         <canvas id="tdCanvas"></canvas>
       </div>
 
-      <!-- Sidebar -->
+      <!-- Sidebar — #4 hover tooltips -->
       <div id="sidebar">
         <div class="sb-label">🔧 DEFENSES</div>
 
+        <!-- Each card has a tooltip div that shows on hover -->
         <div class="td-card" id="td-card-firewall" onclick="selectTower('firewall')">
           <span class="tc-emoji">🧱</span>
           <div class="tc-name">Firewall</div>
           <div class="tc-cost">💰 30</div>
-          <div class="tc-desc">Hits: 🐛 Worm · 🎣 Phishing</div>
+          <div class="tc-desc">Worm · Phishing</div>
         </div>
 
         <div class="td-card" id="td-card-antivirus" onclick="selectTower('antivirus')">
           <span class="tc-emoji">🔍</span>
           <div class="tc-name">Antivirus</div>
           <div class="tc-cost">💰 45</div>
-          <div class="tc-desc">Hits: 🕵️ Spyware only</div>
+          <div class="tc-desc">Worm · Phishing · Spyware</div>
         </div>
 
         <div class="td-card" id="td-card-updater" onclick="selectTower('updater')">
           <span class="tc-emoji">🔄</span>
           <div class="tc-name">Updater</div>
           <div class="tc-cost">💰 50</div>
-          <div class="tc-desc">Hits: 🐛 Worm · 🕵️ Spyware</div>
+          <div class="tc-desc">Worm · Phishing · Spyware ❄️</div>
         </div>
 
         <div class="td-card" id="td-card-vpn" onclick="selectTower('vpn')">
           <span class="tc-emoji">🔐</span>
           <div class="tc-name">VPN Shield</div>
           <div class="tc-cost">💰 90</div>
-          <div class="tc-desc">Hits: 🔒 Ransomware only</div>
+          <div class="tc-desc">Worm · Phishing · Ransomware 💥</div>
         </div>
 
-        <div class="sb-tip">Click tower then tile to place. Click tower twice to sell.</div>
+        <div class="sb-tip">Hover a tower to learn more. Click twice to sell.</div>
 
         <div style="flex:1"></div>
 
-        <button class="sb-btn" id="btnSendWave" onclick="sendWave()">⚡ Send Wave 1</button>
-        <button class="sb-btn" id="btnSell"     onclick="sellTower()">💸 Sell Tower</button>
+        <button class="sb-btn" id="btnSell" onclick="sellTower()">💸 Sell Tower</button>
       </div>
 
     </div>
@@ -194,7 +132,7 @@
 
 
   <!-- ====================================================
-       SCREEN 3: RESULTS
+       SCREEN 4: RESULTS
   ==================================================== -->
   <section class="screen" id="s-results">
     <div class="res-trophy" id="resTrophy">🏆</div>
@@ -217,7 +155,6 @@
   </section>
 
 
-  <!-- JS loads after DOM -->
   <script src="cyberdefense.js"></script>
 
 </body>

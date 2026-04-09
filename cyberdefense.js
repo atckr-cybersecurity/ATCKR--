@@ -242,6 +242,29 @@ function resizeCanvas() {
   );
   OX = Math.floor((canvas.width  - CELL * GRID_COLS) / 2);
   OY = Math.floor((canvas.height - CELL * GRID_ROWS) / 2);
+
+  // Re-snap all active enemies to their current path node using
+  // the new CELL/OX/OY values — without this, stored pixel positions
+  // become stale after resize and enemies fly off the path.
+  if (G && G.enemies) {
+    G.enemies.forEach(e => {
+      const node = PATH[e.pathIdx];
+      if (node) {
+        const pos = cellPx(node.x, node.y);
+        e.x = pos.px;
+        e.y = pos.py;
+      }
+    });
+  }
+
+  // Re-snap all placed tower pixel positions too
+  if (G && G.towers) {
+    G.towers.forEach(t => {
+      const pos = cellPx(t.x, t.y);
+      t.px = pos.px;
+      t.py = pos.py;
+    });
+  }
 }
 
 function cellPx(cx, cy) {
@@ -823,7 +846,7 @@ function gameLoop(timestamp, id) {
   // If a newer loop has started, this one exits
   if (id !== loopId) return;
 
-  const dt = Math.min((timestamp - (lastTime || timestamp)) / 1000, 0.05);
+  const dt = Math.min((timestamp - (lastTime || timestamp)) / 1000, 0.033);
   lastTime = timestamp;
 
   if (!G.answered) update(dt);
@@ -919,6 +942,20 @@ function update(dt) {
     }
 
     if (leaked) continue;
+
+    // Safety clamp — if the enemy has drifted further than one full cell
+    // from its current path node (shouldn't happen, but catches edge cases),
+    // snap it back to the node centre so it can't visually leave the path.
+    const currentNode = PATH[e.pathIdx];
+    if (currentNode) {
+      const snap = cellPx(currentNode.x, currentNode.y);
+      const ddx  = e.x - snap.px;
+      const ddy  = e.y - snap.py;
+      if (Math.sqrt(ddx * ddx + ddy * ddy) > CELL * 1.5) {
+        e.x = snap.px;
+        e.y = snap.py;
+      }
+    }
   }
 
   // --- Towers shoot ---
@@ -1215,6 +1252,41 @@ function initInput() {
 
   canvas.addEventListener('mouseleave', () => { hoverCell = null; });
 
+  // Touch support — treat touchstart as equivalent to click for placement
+  canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    const touch = e.touches[0];
+    const r     = canvas.getBoundingClientRect();
+    const mx    = (touch.clientX - r.left) * (canvas.width  / r.width);
+    const my    = (touch.clientY - r.top)  * (canvas.height / r.height);
+    hoverCell   = pxCell(mx, my);
+  }, { passive: false });
+
+  canvas.addEventListener('touchend', e => {
+    e.preventDefault();
+    const touch = e.changedTouches[0];
+    const r     = canvas.getBoundingClientRect();
+    const mx    = (touch.clientX - r.left) * (canvas.width  / r.width);
+    const my    = (touch.clientY - r.top)  * (canvas.height / r.height);
+    const cell  = pxCell(mx, my);
+
+    const clicked = G.towers.find(t => t.x === cell.x && t.y === cell.y);
+    if (clicked) {
+      G.selectedType = null;
+      document.querySelectorAll('.td-card').forEach(c => c.classList.remove('selected'));
+      if (G.selectedTower === clicked) {
+        sellTower();
+      } else {
+        G.selectedTower = clicked;
+        updateSellBtn();
+      }
+      return;
+    }
+    if (G.selectedType) { placeTower(cell.x, cell.y); return; }
+    G.selectedTower = null;
+    updateSellBtn();
+  }, { passive: false });
+
   canvas.addEventListener('click', e => {
     const r    = canvas.getBoundingClientRect();
     const mx   = (e.clientX - r.left) * (canvas.width  / r.width);
@@ -1249,7 +1321,77 @@ function initInput() {
     G.selectedTower = null;
     updateSellBtn();
   });
-}
+
+  // Sidebar tower cards — body-level tooltip on hover/tap
+  // Tooltip is a single fixed div appended to body so it is never clipped
+  const _tip     = document.getElementById('td-tooltip');
+  const _tipData = {
+    'td-card-firewall':  { title: '🧱 Firewall',   body: 'Cost: 💰30 · Targets 🐛 Worm & 🎣 Phishing\nFast fire rate. Great for early waves. Blocks known threats before they spread.' },
+    'td-card-antivirus': { title: '🔍 Antivirus',  body: 'Cost: 💰45 · Targets 🐛 Worm, 🎣 Phishing & 🕵️ Spyware\nOne of only 2 towers that can see invisible Spyware. High damage per shot.' },
+    'td-card-updater':   { title: '🔄 Updater',    body: 'Cost: 💰50 · Targets 🐛 Worm, 🎣 Phishing & 🕵️ Spyware\nSlows ❄️ every enemy it hits. Also detects Spyware. Patch those security holes!' },
+    'td-card-vpn':       { title: '🔐 VPN Shield', body: 'Cost: 💰90 · Targets 🐛 Worm, 🎣 Phishing & 🔒 Ransomware\nAOE 💥 blast hits all enemies in range. The ONLY tower that stops Ransomware!' }
+  };
+
+  function showTip(cardEl, x, y) {
+    const data = _tipData[cardEl.id];
+    if (!data || !_tip) return;
+    _tip.innerHTML = '<strong>' + data.title + '</strong>' + data.body.replace(/\n/g, '<br>');
+    _tip.classList.add('visible');
+    // Position to the left of the sidebar on desktop, above on mobile
+    const sidebar  = document.getElementById('sidebar');
+    const sRect    = sidebar.getBoundingClientRect();
+    const tW       = 220, tH = _tip.offsetHeight || 120;
+    const isMobile = window.innerWidth <= 480;
+    let tx, ty;
+    if (isMobile) {
+      // sidebar is at bottom — show tooltip above the card
+      const cRect = cardEl.getBoundingClientRect();
+      tx = Math.max(4, Math.min(cRect.left + cRect.width / 2 - tW / 2, window.innerWidth - tW - 4));
+      ty = Math.max(4, cRect.top - tH - 10);
+    } else {
+      // sidebar is on the right — show tooltip to its left
+      tx = sRect.left - tW - 10;
+      const cRect = cardEl.getBoundingClientRect();
+      ty = Math.max(4, Math.min(cRect.top, window.innerHeight - tH - 4));
+    }
+    _tip.style.left = tx + 'px';
+    _tip.style.top  = ty + 'px';
+  }
+
+  function hideTip() {
+    if (_tip) _tip.classList.remove('visible');
+  }
+
+  document.querySelectorAll('.td-card').forEach(card => {
+    // Desktop hover
+    card.addEventListener('mouseenter', () => showTip(card));
+    card.addEventListener('mouseleave', hideTip);
+
+    // Mobile tap
+    card.addEventListener('touchstart', e => {
+      const allOpen = document.querySelectorAll('.td-card.tip-open');
+      if (allOpen.length && allOpen[0] !== card) {
+        allOpen.forEach(c => c.classList.remove('tip-open'));
+        hideTip();
+      }
+      if (card.classList.contains('tip-open')) {
+        card.classList.remove('tip-open');
+        hideTip();
+      } else {
+        card.classList.add('tip-open');
+        showTip(card);
+      }
+    }, { passive: true });
+  });
+
+  document.addEventListener('touchstart', e => {
+    if (!e.target.closest('.td-card') && !e.target.closest('#td-tooltip')) {
+      document.querySelectorAll('.td-card').forEach(c => c.classList.remove('tip-open'));
+      hideTip();
+    }
+  }, { passive: true });
+
+} // end initInput
 
 
 /* -------------------------------------------------------
@@ -1382,7 +1524,7 @@ function endGame() {
 function goNext() {
   const passed = localStorage.getItem('game2_passed') === 'true';
   if (passed) {
-    window.location.href = '../games/game3.html';
+    window.location.href = 'vocabblast.html';
   } else {
     showToast('💡 Survive all 5 waves to unlock Game 3!');
   }

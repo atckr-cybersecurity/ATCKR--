@@ -1,0 +1,20 @@
+DROP DATABASE IF EXISTS atckr;
+CREATE DATABASE atckr;
+USE atckr;
+
+DROP TABLE IF EXISTS player;
+
+CREATE TABLE Player
+(
+    PlayerID VARCHAR(10) PRIMARY KEY NOT NULL,
+    Password VARCHAR(20) NOT NULL,
+    PlayerLName VARCHAR(25) NOT NULL,
+    PlayerFName VARCHAR(25) NOT NULL,
+    Street VARCHAR(50),
+    City VARCHAR(25),
+    State CHAR(2),
+    Zip VARCHAR(10),
+    Phone VARCHAR(15),
+    Email VARCHAR(50) UNIQUE NOT NULL,
+    DateCreated DATETIME NOT NULL
+);

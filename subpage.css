@@ -1,5 +1,8 @@
-/* ATCKR CONTACT PAGE */
+/* This is for the ATCKR vocab page! */
 
+
+
+/* reset styles */
 article, body, div, footer, header, main h1, h2, h3, h4, nav, img, ul, li, p {
     border: 0;
     margin: 0;
@@ -71,50 +74,45 @@ nav a:hover {
     color: #52d63a;
 }
 
-/* PAGE TITLE */
+/* vocab section */
 
-.page-title{
-    text-align:center;
-    margin-top:40px;
-    font-size:40px;
+
+.vocab{
+    max-width: 900px;
+    margin: 0 auto;
+    text-align: center;
+    color: white;
 }
 
-/* INTRO TEXT */
-
-.contact-intro{
-    text-align:center;
-    max-width:800px;
-    margin:20px auto 40px auto;
+.vocab-card {
+    display: inline-block;
+    vertical-align: top;
+    width: 28%;
+    margin: 15px;
+    padding: 20px;
+    background-color: #0a0a0a;
+    border: 1px solid #52d63a;
+    border-radius: 12px;
+    text-align: left;
+    color: #ffffff;
+    box-shadow: 0 0 10px rgba(82, 214, 58, 0.1);
 }
 
-/* CONTACT CARDS */
-
-.contact-content{
-    text-align:center;
+.vocab-card h2 {
+    color: #52d63a;
+    margin-bottom: 12px;
+    font-size: 1.3rem;
 }
 
-.contact-info{
-    display:flex;
-    justify-content:center;
-    gap:40px;
-    margin-top:20px;
+.vocab-card p {
+    color: #d6d6d6;
+    font-size: 0.95rem;
+    line-height: 1.6;
 }
-
-.contact-card{
-    border:1px solid #52d63a;
-    padding:25px;
-    width:260px;
-    border-radius:10px;
-    background:#111;
-    transition:0.3s;
-}
-
-.contact-card:hover{
-    transform:translateY(-6px);
-    box-shadow:0 0 12px #52d63a;
-}
-
 /* CONTACT FORM */
+.page-title {
+    text-align: center;
+}
 
 .contact-section{
     margin-top:60px;
@@ -141,7 +139,6 @@ nav a:hover {
     background:black;
     color:white;
 }
-
 .contact-form button{
     margin-top:20px;
     padding:14px;
@@ -154,57 +151,98 @@ nav a:hover {
 .contact-form button:hover{
     box-shadow:0 0 10px #52d63a;
 }
-
-/* FOOTER */
-
-footer{
-    margin-top:80px;
-    background:#111;
-    padding:25px;
-    text-align:center;
+/* navigation section (usage of transitions/animations here) */
+nav.site-navigation {
+    background-color: #FFFFFF;
+    text-align: center;
 }
-/* popup modal */
 
-.modal{
-    display:none;
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    background:rgba(0,0,0,0.8);
-    }
-    
-    .modal-content{
-    background:black;
-    color:#00FF00;
-    border:2px solid #52d63a;
-    padding:30px;
-    width:400px;
-    margin:10% auto;
-    text-align:center;
-    border-radius:10px;
-    }
-    
-    .modal-content textarea,
-    .modal-content select{
-    width:100%;
-    padding:8px;
-    margin-top:10px;
-    background:black;
-    color:white;
-    border:1px solid #52d63a;
-    }
-    
-    .modal-content button{
-    margin-top:15px;
-    padding:10px 20px;
-    background:#52d63a;
-    border:none;
-    cursor:pointer;
-    }
+nav.site-navigation li {
+    display: inline-block;
+    margin: 0 15px;
+    text-align: center;
+}
 
-    /* animations for fading */
+nav.site-navigation li:hover {
+    -ms-transform: scale(1.4);
+    transform: scale(1.4);
+}
+
+nav.site-navigation a:link {
+    text-decoration: none;
+    color: #333;
+}
+
+nav.site-navigation a:visited {
+    color: darkgray;
+}
+
+nav.site-navigation a:hover, nav.site-navigation a:focus {
+    color: #333;  
+    text-shadow: 1px -1px 0 black; /* displays a black shadow when hovering around the navigation page. */
+}
+
+nav.site-navigation a:active {
+    position: relative;
+    top: 1px;
+    left: 1px;
+}
+
+/* skip navigation features */
+.skip-navigation {
+    position: absolute;
+    left: -10000px;
+}
+
+p.skip-navigation a:focus {
+    left: 20px;
+    top: 0.4em;
+    background: white;
+    padding: 0;
+    color: #e63946;
+    text-decoration: none;
+}
+
+
+/* footer */
+.site-footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+    padding: 15px;
+    background-color: #111;
+    color: #888;
+}
+
+.contacts {
+    
+}
+
+.copyright {
+    text-align: center;
+    padding-top: 20px;
+    margin-top: 20px;
+    border-top: 1px solid #555;
+}
+
+/* responsive web design for mobile devices only! */
+@media print {
+    .container, h1, h2, p {
+        color: black;
+        background-color: lightgrey;
+    }
+    
+    .site-navigation ul {
+        flex-direction: column;
+        gap: 1em;
+    }
+    
+    *nav {
+        display: none;
+    }
+}
+/* animations for fading */
 @keyframes fadeDown {
     from {
         opacity: 0;

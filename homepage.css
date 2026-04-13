@@ -326,4 +326,93 @@ p.skip-navigation a:focus {
     }
 
 }
- 
+.profile-box {
+    max-width: 700px;
+    margin: 60px auto;
+    padding: 30px;
+    background: rgba(0, 0, 0, 0.75);
+    border: 1px solid #52d63a;
+    border-radius: 12px;
+    color: white;
+}
+
+.score-history {
+    margin-top: 30px;
+    padding: 20px;
+    border: 1px solid #52d63a;
+    border-radius: 12px;
+    background: rgba(82, 214, 58, 0.08);
+}
+
+.score-history h2 {
+    margin-bottom: 15px;
+    color: #52d63a;
+}
+
+.score-history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.score-card {
+    padding: 15px;
+    border: 1px solid #526d3a;
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.65);
+}
+
+.score-card p {
+    margin: 6px 0;
+    color: white;
+}
+/* wrap title so splash moves with it */
+.title-wrap {
+    position: relative;
+    display: inline-block;
+}
+
+/* fix spacing between the two title lines */
+.hero-title {
+    line-height: 1.2;
+    margin: 0;
+}
+
+/* minecraft-style splash text (clean + readable) */
+.cyber-splash {
+    position: absolute;
+    top: 12px;
+    right: -165px;
+
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #ffffff;
+
+    /* softer glow so it's readable */
+    text-shadow:
+        0 0 3px rgba(255, 255, 255, 0.45),
+        0 0 6px rgba(255, 255, 255, 0.25);
+
+    transform: rotate(15deg);
+    transform-origin: center;
+
+    animation: cyberPulse 1.2s infinite ease-in-out;
+
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* smooth pulsing animation (moves as one unit) */
+@keyframes cyberPulse {
+    0% {
+        transform: rotate(15deg) scale(1);
+    }
+    50% {
+        transform: rotate(15deg) scale(1.08);
+    }
+    100% {
+        transform: rotate(15deg) scale(1);
+    }
+}

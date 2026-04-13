@@ -126,6 +126,46 @@
 
   <!-- ===== RESULTS SCREEN ===== -->
   <div id="s-results" class="screen">
+    <div id="quizModal" class="quiz-modal">
+      <div class="quiz-box">
+        <h3 class="quiz-title">Cyber Check ⚡</h3>
+        <p class="quiz-sub">Answer these 3 quick questions about what you learned.</p>
+
+        <form id="quizForm" action="https://formspree.io/f/xwponean" method="POST">
+          <input type="hidden" name="game" value="Text or Trap">
+          <input type="hidden" name="screen" value="Post-Game Quiz">
+          <input type="hidden" name="quiz_score" id="quizScoreInput">
+
+          <div class="quiz-question">
+            <p>1. What is a major red flag that a text message may be phishing?</p>
+            <label><input type="radio" name="Question 1" value="It creates urgency and tells you to act fast" required> It creates urgency and tells you to act fast</label>
+            <label><input type="radio" name="Question 1" value="It comes from someone you know"> It comes from someone you know</label>
+            <label><input type="radio" name="Question 1" value="It says good morning"> It says good morning</label>
+          </div>
+
+          <div class="quiz-question">
+            <p>2. What should you do before clicking a link in a text?</p>
+            <label><input type="radio" name="Question 2" value="Click it quickly before it expires" required> Click it quickly before it expires</label>
+            <label><input type="radio" name="Question 2" value="Check the URL carefully first"> Check the URL carefully first</label>
+            <label><input type="radio" name="Question 2" value="Reply with your password"> Reply with your password</label>
+          </div>
+
+          <div class="quiz-question">
+            <p>3. If a random text asks for your password or personal info, what is the safest choice?</p>
+            <label><input type="radio" name="Question 3" value="Send the info if the message looks serious" required> Send the info if the message looks serious</label>
+            <label><input type="radio" name="Question 3" value="Ignore it and verify through the real company website"> Ignore it and verify through the real company website</label>
+            <label><input type="radio" name="Question 3" value="Forward it to friends"> Forward it to friends</label>
+          </div>
+
+          <div id="quizResult" class="quiz-result"></div>
+
+          <div class="quiz-btns">
+            <button type="submit" class="quiz-btn primary">Submit Answers</button>
+            <button type="button" class="quiz-btn secondary" onclick="closeQuiz()">Close</button>
+          </div>
+        </form>
+      </div>
+    </div>
     <div class="res-trophy" id="resTrophy">🏆</div>
     <div class="res-title"  id="resTitle">Great job!</div>
     <div class="res-sub"    id="resSub"></div>
@@ -174,7 +214,6 @@
 
 <!-- JavaScript files loaded at the bottom -->
 <script src="textortrap-data.js"></script>
-<script src="textortrap.js"></script>
-
+<script type="module" src="textortrap.js"></script>
 </body>
 </html>

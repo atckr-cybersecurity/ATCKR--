@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>ATCKR | Profile</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="homepage.css">
+</head>
+<body>
+    <!-- HEADER -->
+    <header>
+        <div class="container">
+            <a href="#contentstart" class="skip-navigation">Skip Navigation</a>
+
+            <div class="logo-header">
+                <a href="index.html">
+                    <img src="../photos/atckr.png" alt="ATCKR Logo" class="logo">
+                </a>
+            </div>
+
+            <nav class="site-nav">
+                <ul>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="vocab.html">Vocab!</a></li>
+                    <li><a href="prevention.html">Prevention</a></li>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="#" id="logoutBtn">Logout</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- PROFILE -->
+    <main id="contentstart">
+        <div class="login profile-box">
+            <h1>My Profile</h1>
+
+            <p><strong>First Name:</strong> <span id="firstName">Loading...</span></p>
+            <p><strong>Last Name:</strong> <span id="lastName">Loading...</span></p>
+            <p><strong>Email:</strong> <span id="email">Loading...</span></p>
+
+            <div class="score-history">
+                <h2>Previous Game Scores</h2>
+                <div id="scoreHistoryList" class="score-history-list">
+                    <p>Loading scores...</p>
+                </div>
+            </div>
+
+            <p id="message"></p>
+        </div>
+    </main>
+
+    <!-- footer -->
+    <footer>
+        <div class="copyright">
+            &copy; 2026 ATCKR Corporation.
+            <p>J.I.M.D</p>
+            <div class="contacts">
+                <a href="contact.html">Contact us!</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- firebase profile logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+        import {
+            getFirestore,
+            doc,
+            getDoc,
+            collection,
+            getDocs,
+            query,
+            orderBy
+        } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD_XcFPJnBqu95_YjWTRsjkWnwU5wHlA-s",
+            authDomain: "atckr-c6d3d.firebaseapp.com",
+            projectId: "atckr-c6d3d",
+            storageBucket: "atckr-c6d3d.firebasestorage.app",
+            messagingSenderId: "834010699386",
+            appId: "1:834010699386:web:04134df603f29119010dc3",
+            measurementId: "G-SHF21PMJ8R"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const firstName = document.getElementById("firstName");
+        const lastName = document.getElementById("lastName");
+        const email = document.getElementById("email");
+        const message = document.getElementById("message");
+        const logoutBtn = document.getElementById("logoutBtn");
+        const scoreHistoryList = document.getElementById("scoreHistoryList");
+
+        async function loadScoreHistory(userId) {
+            scoreHistoryList.innerHTML = "<p>Loading scores...</p>";
+
+            try {
+                const scoresRef = collection(db, "users", userId, "gameScores");
+                const scoresQuery = query(scoresRef, orderBy("createdAt", "desc"));
+                const scoreSnap = await getDocs(scoresQuery);
+
+                if (scoreSnap.empty) {
+                    scoreHistoryList.innerHTML = "<p>No scores recorded yet.</p>";
+                    return;
+                }
+
+                scoreHistoryList.innerHTML = "";
+
+                scoreSnap.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    const scoreCard = document.createElement("div");
+                    scoreCard.className = "score-card";
+
+                    let dateText = "No date";
+                    if (data.createdAt && data.createdAt.toDate) {
+                        dateText = data.createdAt.toDate().toLocaleString();
+                    }
+
+                    scoreCard.innerHTML = `
+                        <p><strong>Game:</strong> ${data.game || ""}</p>
+                        <p><strong>Score:</strong> ${data.score ?? 0}</p>
+                        <p><strong>Correct:</strong> ${data.correct ?? 0}/${data.total ?? 0}</p>
+                        <p><strong>Stars:</strong> ${data.stars ?? 0}</p>
+                        <p><strong>Date:</strong> ${dateText}</p>
+                    `;
+
+                    scoreHistoryList.appendChild(scoreCard);
+                });
+            } catch (error) {
+                console.error("Could not load scores:", error);
+                scoreHistoryList.innerHTML = "<p>Could not load scores.</p>";
+            }
+        }
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = "login.html";
+                return;
+            }
+
+            email.textContent = user.email;
+
+            try {
+                const userRef = doc(db, "users", user.uid);
+                const userSnap = await getDoc(userRef);
+
+                if (userSnap.exists()) {
+                    const userData = userSnap.data();
+                    firstName.textContent = userData.firstName || "";
+                    lastName.textContent = userData.lastName || "";
+                    email.textContent = userData.email || user.email;
+                } else {
+                    message.textContent = "No profile data found.";
+                }
+
+                await loadScoreHistory(user.uid);
+            } catch (error) {
+                message.textContent = error.message;
+            }
+        });
+
+        logoutBtn.addEventListener("click", async (e) => {
+            e.preventDefault();
+
+            try {
+                await signOut(auth);
+                window.location.href = "login.html";
+            } catch (error) {
+                message.textContent = error.message;
+            }
+        });
+    </script>
+
+</body>
+</html>

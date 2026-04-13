@@ -6,7 +6,54 @@
    vocab matching, score tracking, streak system,
    audio, and screen navigation for Vocab Blast.
 ===================================================== */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
+const firebaseConfig = {
+  apiKey: "AIzaSyD_XcFPJnBqu95_YjWTRsjkWnwU5wHlA-s",
+  authDomain: "atckr-c6d3d.firebaseapp.com",
+  projectId: "atckr-c6d3d",
+  storageBucket: "atckr-c6d3d.firebasestorage.app",
+  messagingSenderId: "834010699386",
+  appId: "1:834010699386:web:04134df603f29119010dc3",
+  measurementId: "G-SHF21PMJ8R"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let scoreSaved = false;
+
+async function saveGameScoreToProfile(stars, survived, pct) {
+  const user = auth.currentUser;
+  if (!user || scoreSaved) return;
+
+  try {
+    await addDoc(collection(db, "users", user.uid, "gameScores"), {
+      game: "Vocab Blast",
+      score: G.score,
+      correct: G.correct,
+      total: G.queue.length,
+      stars: stars,
+      bestStreak: G.best,
+      missed: G.missed,
+      bonus: G.bonus,
+      passed: survived && pct >= 0.6,
+      createdAt: serverTimestamp()
+    });
+
+    scoreSaved = true;
+  } catch (error) {
+    console.error("Could not save Vocab Blast score:", error);
+  }
+}
 
 /* -------------------------------------------------------
    VOCAB DATA
@@ -243,6 +290,8 @@ function showScreen(id) {
    Called by the Start button on the intro screen.
 ------------------------------------------------------- */
 function startGame() {
+  scoreSaved = false;
+
   Object.assign(G, {
     lives: 3, score: 0, streak: 0, best: 0,
     correct: 0, missed: 0, bonus: 0,
@@ -740,7 +789,7 @@ function spawnConfetti() {
    Calculates stars, populates results screen,
    saves to localStorage — mirrors game1 & game2.
 ------------------------------------------------------- */
-function endGame() {
+async function endGame() {
   G.gameOver = true;
   if (animId) cancelAnimationFrame(animId);
 
@@ -775,11 +824,13 @@ function endGame() {
   localStorage.setItem('game3_score',  G.score);
   localStorage.setItem('game3_stars',  stars);
 
+  await saveGameScoreToProfile(stars, survived, pct);
+
   showScreen('s-results');
 }
 
-function goHome() {
-  window.location.href = 'index.html';
+function quiz() {
+  window.location.href = 'finalquiz.html';
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -788,4 +839,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Nothing else needed here.
 });
 
+window.startGame = startGame;
+window.quiz = quiz;
 // This program was made to some degree with Claude. Human coding was added for effects and to ensure accuracy.

@@ -11,10 +11,11 @@
     <!-- HEADER -->
     <header>
         <div class="container">
+            <a href="#contentstart" class="skip-navigation">Skip Navigation</a>
 
             <div class="logo-header">
                 <a href="index.html">
-                    <img src="atckr.png" alt="ATCKR Logo" class="logo">
+                    <img src="photos/atckr.png" alt="ATCKR Logo" class="logo">
                 </a>
             </div>
 
@@ -29,30 +30,39 @@
         </div>
     </header>
 
-    <main>
+    <main id="contentstart">
 
         <!-- PAGE TITLE -->
         <h1 class="page-title">Join the Fight!</h1>
 
-        <!-- SIGN UP FORM — same structure as login page -->
+        <!-- SIGN UP FORM -->
         <section class="contact-section">
             <h2>Create Your Account</h2>
-            <form method="post" class="contact-form">
 
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" required>
+            <form id="signupForm" class="contact-form">
+
+                <label for="fname">First Name</label>
+                <input type="text" id="fname" required>
+
+                <label for="lname">Last Name</label>
+                <input type="text" id="lname" required>
 
                 <label for="email">Email</label>
-                <input type="email" id="email" name="email" required>
+                <input type="email" id="email" required>
 
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password" required>
+                <input type="password" id="password" required>
 
-                <label for="confirm-password">Confirm Password</label>
-                <input type="password" id="confirm-password" name="confirm-password" required>
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" id="confirmPassword" required>
 
                 <button type="submit">Sign Up</button>
 
+                <div class="forgot">
+                    <p>Already have an account? <a href="login.html">Login</a></p>
+                </div>
+
+                <p id="message"></p>
             </form>
         </section>
 
@@ -68,6 +78,77 @@
             </div>
         </div>
     </footer>
+
+    <!-- firebase + signup logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD_XcFPJnBqu95_YjWTRsjkWnwU5wHlA-s",
+            authDomain: "atckr-c6d3d.firebaseapp.com",
+            projectId: "atckr-c6d3d",
+            storageBucket: "atckr-c6d3d.firebasestorage.app",
+            messagingSenderId: "834010699386",
+            appId: "1:834010699386:web:04134df603f29119010dc3",
+            measurementId: "G-SHF21PMJ8R"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const form = document.getElementById("signupForm");
+        const fname = document.getElementById("fname");
+        const lname = document.getElementById("lname");
+        const email = document.getElementById("email");
+        const password = document.getElementById("password");
+        const confirmPassword = document.getElementById("confirmPassword");
+        const message = document.getElementById("message");
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            message.textContent = "";
+
+            if (password.value !== confirmPassword.value) {
+                message.textContent = "Passwords do not match.";
+                return;
+            }
+
+            if (password.value.length < 6) {
+                message.textContent = "Password must be at least 6 characters.";
+                return;
+            }
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(
+                    auth,
+                    email.value,
+                    password.value
+                );
+
+                const user = userCredential.user;
+
+                await setDoc(doc(db, "users", user.uid), {
+                    firstName: fname.value,
+                    lastName: lname.value,
+                    email: email.value,
+                    createdAt: new Date()
+                });
+
+                message.textContent = "Account created successfully!";
+
+                setTimeout(() => {
+                    window.location.href = "login.html";
+                }, 1500);
+
+            } catch (error) {
+                message.textContent = error.message;
+            }
+        });
+    </script>
 
 </body>
 </html>

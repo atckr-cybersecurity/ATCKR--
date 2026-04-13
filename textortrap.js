@@ -8,6 +8,85 @@
 
 
 /* -------------------------------------------------------
+   FIREBASE SCORE SAVE
+   Saves one score per finished game session for the
+   logged-in user so it stays after logout/login
+------------------------------------------------------- */
+let auth = null;
+let db = null;
+
+async function setupFirebase() {
+  if (auth && db) return;
+
+  const { initializeApp, getApps, getApp } = await import('https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js');
+  const { getAuth, onAuthStateChanged } = await import('https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js');
+  const { getFirestore } = await import('https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js');
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyD_XcFPJnBqu95_YjWTRsjkWnwU5wHlA-s",
+    authDomain: "atckr-c6d3d.firebaseapp.com",
+    projectId: "atckr-c6d3d",
+    storageBucket: "atckr-c6d3d.firebasestorage.app",
+    messagingSenderId: "834010699386",
+    appId: "1:834010699386:web:04134df603f29119010dc3",
+    measurementId: "G-SHF21PMJ8R"
+  };
+
+  const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+  auth = getAuth(app);
+  db = getFirestore(app);
+
+  await new Promise((resolve) => {
+    const unsub = onAuthStateChanged(auth, () => {
+      unsub();
+      resolve();
+    });
+  });
+}
+
+function startGameSession(gameKey) {
+  const sessionId = crypto.randomUUID();
+  sessionStorage.setItem(`${gameKey}_sessionId`, sessionId);
+  sessionStorage.setItem(`${gameKey}_scoreSaved`, 'false');
+}
+
+async function saveGameScore(gameName, gameKey, finalScore, correctAnswers, totalQuestions, starsEarned) {
+  try {
+    await setupFirebase();
+
+    const user = auth.currentUser;
+    if (!user) {
+      console.log('No logged-in user, score not saved.');
+      return;
+    }
+
+    const sessionId = sessionStorage.getItem(`${gameKey}_sessionId`);
+    const alreadySaved = sessionStorage.getItem(`${gameKey}_scoreSaved`);
+
+    if (!sessionId || alreadySaved === 'true') return;
+
+    const { doc, setDoc, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js');
+
+    await setDoc(doc(db, 'users', user.uid, 'gameScores', sessionId), {
+      game: gameName,
+      gameKey: gameKey,
+      score: finalScore,
+      correct: correctAnswers,
+      total: totalQuestions,
+      stars: starsEarned,
+      sessionId: sessionId,
+      createdAt: serverTimestamp()
+    });
+
+    sessionStorage.setItem(`${gameKey}_scoreSaved`, 'true');
+    console.log('Score saved successfully.');
+  } catch (error) {
+    console.error('Error saving score:', error);
+  }
+}
+
+
+/* -------------------------------------------------------
    GAME STATE
    Tracks everything about the current playthrough
 ------------------------------------------------------- */
@@ -156,6 +235,8 @@ function showScreen(id) {
    then loads the first question
 ------------------------------------------------------- */
 function startGame() {
+  startGameSession('textortrap');
+
   G.scenarios = [...SCENARIOS].sort(() => Math.random() - 0.5);
   G.index     = 0;
   G.score     = 0;
@@ -553,7 +634,14 @@ function endGame() {
   localStorage.setItem('game1_score',  G.score);
   localStorage.setItem('game1_stars',  stars);
 
+  saveGameScore('Text or Trap', 'textortrap', G.score, G.correct, total, stars);
+
   showScreen('s-results');
+
+if (passed) {
+  setupQuiz();
+  setTimeout(openQuiz, 500);
+}
 }
 
 
@@ -571,3 +659,78 @@ function goNext() {
     showToast('💡 Try to get at least 60% correct to unlock Game 2!');
   }
 }
+function openQuiz() {
+  const modal = document.getElementById("quizModal");
+  const result = document.getElementById("quizResult");
+  const form = document.getElementById("quizForm");
+  if (modal) modal.classList.add("show");
+  if (result) result.textContent = "";
+  if (form) form.reset();
+}
+
+function closeQuiz() {
+  const modal = document.getElementById("quizModal");
+  if (modal) modal.classList.remove("show");
+}
+
+function setupQuiz() {
+  const form = document.getElementById("quizForm");
+  if (!form || form.dataset.wired === "true") return;
+  form.dataset.wired = "true";
+
+  form.addEventListener("submit", async function(e) {
+    e.preventDefault();
+
+    const answer1 = form.querySelector('input[name="Question 1"]:checked');
+    const answer2 = form.querySelector('input[name="Question 2"]:checked');
+    const answer3 = form.querySelector('input[name="Question 3"]:checked');
+    const result = document.getElementById("quizResult");
+
+    if (!answer1 || !answer2 || !answer3) {
+      result.textContent = "Please answer all 3 questions.";
+      return;
+    }
+
+    let score = 0;
+    if (answer1.value === "It creates urgency and tells you to act fast") score++;
+    if (answer2.value === "Check the URL carefully first") score++;
+    if (answer3.value === "Ignore it and verify through the real company website") score++;
+
+    document.getElementById("quizScoreInput").value = score + "/3";
+
+    const formData = new FormData(form);
+    result.textContent = "Submitting answers...";
+
+    try {
+      const response = await fetch(form.action, {
+        method: "POST",
+        body: formData,
+        headers: { "Accept": "application/json" }
+      });
+
+      if (response.ok) {
+        result.textContent = "You got " + score + "/3 correct. Answers sent!";
+        setTimeout(() => {
+          closeQuiz();
+        }, 1200);
+      } else {
+        result.textContent = "You got " + score + "/3 correct, but the form did not send.";
+      }
+    } catch (error) {
+      result.textContent = "You got " + score + "/3 correct, but there was a sending error.";
+    }
+  });
+}
+
+window.addEventListener("click", function(e) {
+  const modal = document.getElementById("quizModal");
+  if (e.target === modal) {
+    closeQuiz();
+  }
+});
+window.startGame = startGame;
+window.answer = answer;
+window.useHint = useHint;
+window.nextQ = nextQ;
+window.goNext = goNext;
+window.closeQuiz = closeQuiz;

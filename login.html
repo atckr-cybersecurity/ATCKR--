@@ -32,13 +32,15 @@
 
     <main>
 
-        <!-- PAGE TITLE — matches contact page .page-title -->
+        <!-- PAGE TITLE -->
         <h1 class="page-title">Login, if you dare...</h1>
 
-        <!-- LOGIN FORM — same structure as contact page -->
+        <!-- LOGIN FORM -->
         <section class="contact-section">
             <h2>Access Your Account</h2>
-            <form method="post" class="contact-form">
+
+            <!-- IMPORTANT: added id="loginForm" -->
+            <form method="post" class="contact-form" id="loginForm">
 
                 <label for="email">Email</label>
                 <input type="email" id="email" name="email" required>
@@ -49,6 +51,9 @@
                 <button type="submit">Login</button>
 
             </form>
+
+            <!-- IMPORTANT: message output -->
+            <p id="message"></p>
 
             <div class="forgot">
                 <p>Don't have an account? <a href="signup.html">Sign Up</a></p>
@@ -68,6 +73,58 @@
         </div>
     </footer>
 
+    <!-- firebase + login logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD_XcFPJnBqu95_YjWTRsjkWnwU5wHlA-s",
+            authDomain: "atckr-c6d3d.firebaseapp.com",
+            projectId: "atckr-c6d3d",
+            storageBucket: "atckr-c6d3d.firebasestorage.app",
+            messagingSenderId: "834010699386",
+            appId: "1:834010699386:web:04134df603f29119010dc3",
+            measurementId: "G-SHF21PMJ8R"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        const form = document.getElementById("loginForm");
+        const email = document.getElementById("email");
+        const password = document.getElementById("password");
+        const message = document.getElementById("message");
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            message.textContent = "";
+
+            try {
+                await signInWithEmailAndPassword(auth, email.value, password.value);
+
+                message.textContent = "Login successful!";
+
+                setTimeout(() => {
+                    window.location.href = "index.html";
+                }, 1000);
+
+            } catch (error) {
+                if (error.code === "auth/invalid-credential") {
+                    message.textContent = "Wrong email or password.";
+                } else if (error.code === "auth/user-not-found") {
+                    message.textContent = "No account found with that email.";
+                } else if (error.code === "auth/wrong-password") {
+                    message.textContent = "Wrong password.";
+                } else if (error.code === "auth/invalid-email") {
+                    message.textContent = "Invalid email address.";
+                } else {
+                    message.textContent = error.message;
+                }
+            }
+        });
+    </script>
+
 </body>
 </html>
-

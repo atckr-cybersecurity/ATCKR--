@@ -7,6 +7,28 @@
    for the malware tower defense game.
    ===================================================== */
 
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+import {
+getFirestore,
+collection,
+addDoc,
+serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+   
+const firebaseConfig = {
+apiKey: "AIzaSyD_XcFPJnBqu95_YjWTRsjkWnwU5wHlA-s",
+authDomain: "atckr-c6d3d.firebaseapp.com",
+projectId: "atckr-c6d3d",
+storageBucket: "atckr-c6d3d.firebasestorage.app",
+messagingSenderId: "834010699386",
+appId: "1:834010699386:web:04134df603f29119010dc3",
+measurementId: "G-SHF21PMJ8R"
+};
+   
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
 /* -------------------------------------------------------
    GAME STATE
@@ -1466,7 +1488,29 @@ const G = {
       setTimeout(() => piece.remove(), 3500);
     }
   }
+  async function saveGameHistory(stars) {
+    const user = auth.currentUser;
   
+    if (!user) {
+      console.log("No signed-in user, game history not saved.");
+      return;
+    }
+  
+    try {
+      await addDoc(collection(db, "users", user.uid, "gameScores"), {
+        game: "Cyber Defense Frenzy",
+        score: G.score,
+        correct: 0,
+        total: 0,
+        stars: stars,
+        createdAt: serverTimestamp()
+      });
+  
+      console.log("Game history saved.");
+    } catch (error) {
+      console.error("Error saving game history:", error);
+    }
+  }
   
   /* -------------------------------------------------------
      END GAME
@@ -1494,7 +1538,9 @@ const G = {
     };
   
     const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
-  
+    
+    saveGameHistory(stars);
+
     set('resTrophy', trophies[stars]);
     set('resTitle',  titles[stars]);
     set('resSub',    subs[stars]);
@@ -1619,5 +1665,10 @@ const G = {
     }
   });
   
+    window.startGame = startGame;
+    window.selectTower = selectTower;
+    window.sellTower = sellTower;
+    window.goNext = goNext;
+    window.closeQuiz = closeQuiz;
   
   // This program was made to some degree with Claude. Human coding was added for effects and to ensure accuracy.

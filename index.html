@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="homepage.css">
 </head>
 <body>
+
     <!-- HEADER -->
     <header>
         <div class="container">
@@ -21,48 +22,68 @@
 
             <nav class="site-nav">
                 <ul>
+                    <li><a href="passwordbattle.html">2-player</a></li>
                     <li><a href="about.html">About</a></li>
                     <li><a href="vocab.html">Vocab!</a></li>
-                    <li><a href="prevention.html">Prevention</a></li> 
+                    <li><a href="prevention.html">Prevention</a></li>
 
-                    <!-- auth buttons -->
+                    <!-- Auth buttons — swapped by Firebase depending on login state -->
                     <li id="loginNav"><a href="login.html">Login/Sign-up</a></li>
                     <li id="profileNav" style="display:none;"><a href="profile.html">Profile</a></li>
-                    <li id="logoutNav" style="display:none;"><a href="#" id="logoutBtn">Logout</a></li>
-
+                    <li id="logoutNav"  style="display:none;"><a href="#" id="logoutBtn">Logout</a></li>
                 </ul>
             </nav>
         </div>
     </header>
 
-    <!-- START BUTTON -->
+    <!-- MAIN -->
     <main id="contentstart">
+
+        <!-- HERO SECTION -->
+        <div class="hero">
+            <div class="title-wrap">
+                <h1 class="hero-title">
+                    Enter the Web.<br>
+                    Play Smart. Stay Safe.
+                </h1>
+            </div>
+            <p class="hero-tagline">An interactive mission for the next generation of defenders.</p>
+            <div class="cyber-splash" id="cyberSplash">Stay alert!</div>
+
+            <!-- TYPING TERMINAL -->
+            <div class="terminal">
+                <span class="terminal-prompt">&gt; </span>
+                <span id="typed"></span>
+                <span class="cursor">_</span>
+            </div>
+        </div>
+
+        <!-- START BUTTON -->
         <div class="start-cont">
             <button class="start" onclick="window.location.href='textortrap.html'">START</button>
         </div>
-    </main>
 
         <!-- ARTICLES -->
         <div class="articles">
 
             <a href="https://cybernews.com/security/billions-credentials-exposed-infostealers-data-leak/" class="article-card">
-                <img src="article_1.jpg" alt="Article Image">
+                <img src="photos/article_1.jpg" alt="Article Image">
                 <div class="article-text">
                     <h3>Information Regarding Password Security</h3>
                     <p>Check out this article about password security!</p>
                 </div>
             </a>
-        
+
             <a href="https://cybernews.com/news/datavant-phishing-attack-data-leak/" class="article-card">
-                <img src="article2.jpg" alt="Article Image">
+                <img src="photos/article2.jpg" alt="Article Image">
                 <div class="article-text">
                     <h3>Information Regarding Phishing</h3>
                     <p>Check out this article about phishing!</p>
                 </div>
             </a>
-        
+
             <a href="https://www.bbc.co.uk/bitesize/articles/zcmbgk7#zm4kwnb" class="article-card">
-                <img src="article3.jpg" alt="Article Image">
+                <img src="photos/article3.jpg" alt="Article Image">
                 <div class="article-text">
                     <h3>Information Regarding Malware/Spyware</h3>
                     <p>Check out this article about malware!</p>
@@ -72,7 +93,7 @@
         </div>
     </main>
 
-    <!-- footer -->
+    <!-- FOOTER -->
     <footer>
         <div class="copyright">
             &copy; 2026 ATCKR Corporation.
@@ -83,43 +104,108 @@
         </div>
     </footer>
 
-    <!-- firebase auth control -->
+    <!-- Typing terminal animation -->
+    <script>
+        const cyberMessages = [
+        "THINK BEFORE YOU CLICK!",
+        "PASSWORDS SAVE LIVES!",
+        "PHISHERS LOVE EASY TARGETS!",
+        "STAY SHARP. STAY SAFE.",
+        "TRUST NO SUSPICIOUS LINK!",
+        "YOUR DATA MATTERS!",
+        "HACKERS NEVER TAKE DAYS OFF!",
+        "SPOT THE SCAM!",
+        "ENCRYPT EVERYTHING!",
+        "CYBER DEFENSE MODE: ON",
+        "MALWARE IS NOT YOUR FRIEND!",
+        "DON'T GET BAITED!",
+        "SECURITY STARTS WITH YOU!",
+        "CLICK SMART. SURF SAFE.",
+        "LOCK IT DOWN!"
+        ];
+
+        const splashEl = document.getElementById("cyberSplash");
+        const randomCyberMessage = cyberMessages[Math.floor(Math.random() * cyberMessages.length)];
+        splashEl.textContent = randomCyberMessage;
+
+        const phrases = [
+            'detecting: phishing attempt...',
+            'scanning: malware signature...',
+            'blocking: unauthorized access...',
+            'encrypting: your data...',
+            'updating: firewall rules...',
+            'alert: spyware detected. neutralizing...'
+        ];
+        
+        let phraseIndex = 0;
+        let charIndex   = 0;
+        let deleting    = false;
+        const el        = document.getElementById('typed');
+        const speed     = { type: 55, delete: 28, pause: 1800 };
+
+        function type() {
+            const current = phrases[phraseIndex];
+
+            if (!deleting) {
+                el.textContent = current.slice(0, charIndex + 1);
+                charIndex++;
+                if (charIndex === current.length) {
+                    deleting = true;
+                    setTimeout(type, speed.pause);
+                    return;
+                }
+            } else {
+                el.textContent = current.slice(0, charIndex - 1);
+                charIndex--;
+                if (charIndex === 0) {
+                    deleting    = false;
+                    phraseIndex = (phraseIndex + 1) % phrases.length;
+                }
+            }
+
+            setTimeout(type, deleting ? speed.delete : speed.type);
+        }
+
+        type();
+    </script>
+
+    <!-- Firebase auth control -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+        import { initializeApp }                        from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyD_XcFPJnBqu95_YjWTRsjkWnwU5wHlA-s",
-            authDomain: "atckr-c6d3d.firebaseapp.com",
-            projectId: "atckr-c6d3d",
-            storageBucket: "atckr-c6d3d.firebasestorage.app",
+            apiKey:            "AIzaSyD_XcFPJnBqu95_YjWTRsjkWnwU5wHlA-s",
+            authDomain:        "atckr-c6d3d.firebaseapp.com",
+            projectId:         "atckr-c6d3d",
+            storageBucket:     "atckr-c6d3d.firebasestorage.app",
             messagingSenderId: "834010699386",
-            appId: "1:834010699386:web:04134df603f29119010dc3",
-            measurementId: "G-SHF21PMJ8R"
+            appId:             "1:834010699386:web:04134df603f29119010dc3",
+            measurementId:     "G-SHF21PMJ8R"
         };
 
-        const app = initializeApp(firebaseConfig);
+        const app  = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        const loginNav = document.getElementById("loginNav");
+        const loginNav   = document.getElementById("loginNav");
         const profileNav = document.getElementById("profileNav");
-        const logoutNav = document.getElementById("logoutNav");
-        const logoutBtn = document.getElementById("logoutBtn");
+        const logoutNav  = document.getElementById("logoutNav");
+        const logoutBtn  = document.getElementById("logoutBtn");
 
-        // check login state
+        // Show/hide nav items based on login state
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                loginNav.style.display = "none";
+                loginNav.style.display   = "none";
                 profileNav.style.display = "inline";
-                logoutNav.style.display = "inline";
+                logoutNav.style.display  = "inline";
             } else {
-                loginNav.style.display = "inline";
+                loginNav.style.display   = "inline";
                 profileNav.style.display = "none";
-                logoutNav.style.display = "none";
+                logoutNav.style.display  = "none";
             }
         });
 
-        // logout
+        // Logout handler
         logoutBtn.addEventListener("click", (e) => {
             e.preventDefault();
             signOut(auth);

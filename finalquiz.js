@@ -188,7 +188,8 @@ const Q = {
   hintsUsed:   0,
   hintShown:   false,
   byTopic:     { phishing: 0, defense: 0, vocab: 0 },
-  studentName: ''
+  studentName: '',
+  review:      []
 };
 
 
@@ -256,6 +257,7 @@ function startQuiz() {
   Q.hintsUsed  = 0;
   Q.hintShown  = false;
   Q.byTopic    = { phishing: 0, defense: 0, vocab: 0 };
+  Q.review     = [];
   showScreen('s-quiz');
   loadQuestion();
 }
@@ -320,6 +322,12 @@ function checkAnswer(index, btn) {
     Q.answered = true;
     Q.correct++;
     Q.byTopic[q.topic]++;
+
+    Q.review.push({
+      topic: q.topicLabel,
+      question: q.q,
+      correctAnswer: q.choices[q.correct]
+    });
 
     btn.classList.add('correct');
     document.querySelectorAll('.choice-btn').forEach(b => b.disabled = true);
@@ -430,6 +438,7 @@ function endQuiz() {
   localStorage.setItem('finalquiz_score',  Q.correct);
   localStorage.setItem('student_name',     Q.studentName);
   localStorage.setItem('finalquiz_date',   new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' }));
+  localStorage.setItem('finalquiz_review', JSON.stringify(Q.review));
 
   showScreen('s-results');
 }

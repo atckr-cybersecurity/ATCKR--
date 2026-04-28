@@ -30,6 +30,7 @@
                     <!-- Auth buttons — swapped by Firebase depending on login state -->
                     <li id="loginNav"><a href="login.html">Login/Sign-up</a></li>
                     <li id="profileNav" style="display:none;"><a href="profile.html">Profile</a></li>
+                    <li id="adminNav" style="display:none;"><a href="admin.html">Admin</a></li>
                     <li id="logoutNav"  style="display:none;"><a href="#" id="logoutBtn">Logout</a></li>
                 </ul>
             </nav>
@@ -170,47 +171,59 @@
     </script>
 
     <!-- Firebase auth control -->
-    <script type="module">
-        import { initializeApp }                        from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-        const firebaseConfig = {
-            apiKey:            "AIzaSyD_XcFPJnBqu95_YjWTRsjkWnwU5wHlA-s",
-            authDomain:        "atckr-c6d3d.firebaseapp.com",
-            projectId:         "atckr-c6d3d",
-            storageBucket:     "atckr-c6d3d.firebasestorage.app",
-            messagingSenderId: "834010699386",
-            appId:             "1:834010699386:web:04134df603f29119010dc3",
-            measurementId:     "G-SHF21PMJ8R"
-        };
+    const firebaseConfig = {
+        apiKey:            "AIzaSyD_XcFPJnBqu95_YjWTRsjkWnwU5wHlA-s",
+        authDomain:        "atckr-c6d3d.firebaseapp.com",
+        projectId:         "atckr-c6d3d",
+        storageBucket:     "atckr-c6d3d.firebasestorage.app",
+        messagingSenderId: "834010699386",
+        appId:             "1:834010699386:web:04134df603f29119010dc3",
+        measurementId:     "G-SHF21PMJ8R"
+    };
 
-        const app  = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
+    const app  = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
 
-        const loginNav   = document.getElementById("loginNav");
-        const profileNav = document.getElementById("profileNav");
-        const logoutNav  = document.getElementById("logoutNav");
-        const logoutBtn  = document.getElementById("logoutBtn");
+    const loginNav   = document.getElementById("loginNav");
+    const profileNav = document.getElementById("profileNav");
+    const logoutNav  = document.getElementById("logoutNav");
+    const logoutBtn  = document.getElementById("logoutBtn");
+    const adminNav   = document.getElementById("adminNav");
 
-        // Show/hide nav items based on login state
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                loginNav.style.display   = "none";
-                profileNav.style.display = "inline";
-                logoutNav.style.display  = "inline";
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            loginNav.style.display   = "none";
+            profileNav.style.display = "inline";
+            logoutNav.style.display  = "inline";
+
+            const adminRef = doc(db, "admins", user.uid);
+            const adminSnap = await getDoc(adminRef);
+
+            if (adminSnap.exists()) {
+                adminNav.style.display = "inline";
             } else {
-                loginNav.style.display   = "inline";
-                profileNav.style.display = "none";
-                logoutNav.style.display  = "none";
+                adminNav.style.display = "none";
             }
-        });
 
-        // Logout handler
-        logoutBtn.addEventListener("click", (e) => {
-            e.preventDefault();
-            signOut(auth);
-        });
-    </script>
+        } else {
+            loginNav.style.display   = "inline";
+            profileNav.style.display = "none";
+            logoutNav.style.display  = "none";
+            adminNav.style.display   = "none";
+        }
+    });
+
+    logoutBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        signOut(auth);
+    });
+</script>
 
 </body>
 </html>

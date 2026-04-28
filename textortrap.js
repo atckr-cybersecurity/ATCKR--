@@ -691,15 +691,39 @@ function setupQuiz() {
       return;
     }
 
-    let score = 0;
-    if (answer1.value === "It creates urgency and tells you to act fast") score++;
-    if (answer2.value === "Check the URL carefully first") score++;
-    if (answer3.value === "Ignore it and verify through the real company website") score++;
+    const review = [
+      {
+        question: "What is a major red flag that a text message may be phishing?",
+        userAnswer: answer1.value,
+        correctAnswer: "It creates urgency and tells you to act fast",
+        isCorrect: answer1.value === "It creates urgency and tells you to act fast",
+        topic: "Text or Trap"
+      },
+      {
+        question: "What should you do before clicking a link in a text?",
+        userAnswer: answer2.value,
+        correctAnswer: "Check the URL carefully first",
+        isCorrect: answer2.value === "Check the URL carefully first",
+        topic: "Text or Trap"
+      },
+      {
+        question: "If a random text asks for your password or personal info, what is the safest choice?",
+        userAnswer: answer3.value,
+        correctAnswer: "Ignore it and verify through the real company website",
+        isCorrect: answer3.value === "Ignore it and verify through the real company website",
+        topic: "Text or Trap"
+      }
+    ];
+
+    let score = review.filter(q => q.isCorrect).length;
+
+    localStorage.setItem("textortrap_quiz_review", JSON.stringify(review));
+    localStorage.setItem("textortrap_quiz_score", score);
+    localStorage.setItem("textortrap_quiz_date", new Date().toLocaleString());
 
     document.getElementById("quizScoreInput").value = score + "/3";
 
     const formData = new FormData(form);
-    result.textContent = "Submitting answers...";
 
     try {
       const response = await fetch(form.action, {
@@ -709,15 +733,12 @@ function setupQuiz() {
       });
 
       if (response.ok) {
-        result.textContent = "You got " + score + "/3 correct. Answers sent!";
-        setTimeout(() => {
-          closeQuiz();
-        }, 1200);
+        result.textContent = "You got " + score + "/3 correct!";
       } else {
-        result.textContent = "You got " + score + "/3 correct, but the form did not send.";
+        result.textContent = "Submitted but something went wrong.";
       }
     } catch (error) {
-      result.textContent = "You got " + score + "/3 correct, but there was a sending error.";
+      result.textContent = "Error submitting form.";
     }
   });
 }

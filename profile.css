@@ -1,0 +1,539 @@
+/* homepage/profile styles */
+
+/* reset styles */
+article, body, div, footer, header, main, h1, h2, h3, h4, nav, img, ul, li, p {
+    border: 0;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: "Share Tech Mono", monospace;
+    line-height: 1.6;
+    color: #00FF00;
+    background-color: #0A0A0A;
+}
+
+/* header */
+
+header {
+    background: #0a0a0a;
+    border-bottom: 2px solid #526d3a;
+}
+
+main {
+    background-image: url("gif.gif");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    min-height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    padding: 60px 20px 40px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 14px 28px;
+
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+
+    animation: fadeDown 1s ease forwards;
+}
+
+.logo {
+    height: 150px;
+    grid-column: 1;
+    justify-self: left;
+}
+
+nav {
+    grid-column: 3;
+    justify-self: end;
+}
+
+nav ul {
+    display: flex;
+    gap: 35px;
+    list-style: none;
+}
+
+nav a {
+    text-decoration: none;
+    color: #fff;
+    font-family: "Share Tech Mono", monospace;
+}
+
+nav a:hover {
+    color: #52d63a;
+
+    /* softer glow */
+    text-shadow: 0 0 4px rgba(82,214,58,.25);
+}
+
+/* hero */
+
+.hero {
+    text-align: center;
+    animation: fadeUp 1s ease forwards;
+    margin-bottom: 10px;
+}
+
+.hero-title {
+    font-size: clamp(1.6rem, 4vw, 2.6rem);
+    color: #52d63a;
+    line-height: 1.2;
+    margin: 0;
+
+    /* reduced glow */
+    text-shadow: 0 0 5px rgba(82,214,58,.22);
+}
+
+.hero-tagline {
+    font-size: 0.95rem;
+    color: rgba(0,255,0,.65);
+    margin-bottom: 22px;
+    letter-spacing: 0.04em;
+}
+
+/* terminal */
+
+.terminal {
+    display: inline-block;
+    background: rgba(0,0,0,.55);
+    border: 1px solid #526d3a;
+    border-radius: 6px;
+    padding: 10px 20px;
+    font-size: 0.88rem;
+    color: #00ff00;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+}
+
+.terminal-prompt {
+    color: #52d63a;
+    font-weight: bold;
+}
+
+/* blinking cursor */
+
+.cursor {
+    display: inline-block;
+    animation: blink 0.75s step-start infinite;
+    color: #52d63a;
+}
+
+@keyframes blink {
+    0%, 100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
+}
+
+/* start button */
+
+.start-cont {
+    text-align: center;
+    margin-bottom: 60px;
+    margin-top: 28px;
+    animation: fadeUp 1s ease forwards;
+}
+
+.start {
+    background-color: #52d63a;
+    color: white;
+    border: none;
+
+    display: inline-block;
+
+    padding: 18px 40px;
+    width: fit-content;
+
+    font-size: 1.6rem;
+    font-family: "Share Tech Mono", monospace;
+
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+
+    animation: glowPulse 2s ease-in-out infinite;
+}
+
+.start:hover {
+    filter: brightness(1.08);
+    transform: scale(1.04);
+    transition: transform 0.18s, filter 0.18s;
+}
+
+@keyframes glowPulse {
+
+    0%, 100% {
+        box-shadow: 0 0 6px rgba(82,214,58,.25);
+    }
+
+    50% {
+        box-shadow: 0 0 14px rgba(82,214,58,.45);
+    }
+}
+
+/* skip navigation */
+
+.skip-navigation {
+    position: absolute;
+    left: -10000px;
+}
+
+/* footer */
+
+.site-footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+
+    text-align: center;
+    padding: 15px;
+
+    background-color: #111;
+    color: #888;
+}
+
+.copyright {
+    text-align: center;
+    padding-top: 20px;
+    margin-top: 20px;
+
+    border-top: 1px solid #555;
+}
+
+/* animations for fading */
+
+@keyframes fadeDown {
+
+    from {
+        opacity: 0;
+        transform: translateY(-40px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeUp {
+
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* title wrap */
+
+.title-wrap {
+    position: relative;
+    display: inline-block;
+}
+
+/* minecraft splash */
+
+.cyber-splash {
+    position: absolute;
+    top: 12px;
+    right: -165px;
+
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1.2rem;
+    font-weight: bold;
+
+    color: #ffffff;
+
+    /* much softer glow */
+    text-shadow: 0 0 2px rgba(255,255,255,.22);
+
+    transform: rotate(15deg);
+    transform-origin: center;
+
+    animation: cyberPulse 1.2s infinite ease-in-out;
+
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* profile page */
+
+main#contentstart {
+    width: 100%;
+    min-height: 100vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+
+    padding: 60px 30px;
+    box-sizing: border-box;
+}
+
+/* profile container */
+
+.profile-box {
+    width: 100%;
+    max-width: 1450px;
+
+    margin: 0 auto;
+    padding: 40px;
+
+    background: rgba(0,0,0,.88);
+
+    border: 2px solid #52d63a;
+    border-radius: 20px;
+
+    /* softer box glow */
+    box-shadow:
+        0 0 10px rgba(82,214,58,.18);
+
+    backdrop-filter: blur(4px);
+}
+
+/* profile title */
+
+.profile-box h1 {
+    text-align: center;
+
+    font-size: 3rem;
+    margin-bottom: 45px;
+
+    color: #52d63a;
+
+    /* softer readable glow */
+    text-shadow:
+        0 0 4px rgba(82,214,58,.28);
+}
+
+/* profile info section */
+
+.profile-info-grid {
+    display: grid;
+
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+
+    gap: 25px;
+
+    margin-bottom: 45px;
+}
+
+.info-card {
+    background: rgba(10,10,10,.92);
+
+    border: 1px solid #52d63a;
+    border-radius: 16px;
+
+    padding: 22px;
+
+    transition: 0.3s ease;
+}
+
+.info-card:hover {
+    transform: translateY(-4px);
+
+    box-shadow:
+        0 0 8px rgba(82,214,58,.18);
+}
+
+.info-label {
+    color: #52d63a;
+
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.info-value {
+    color: white;
+
+    font-size: 1.2rem;
+
+    word-break: break-word;
+}
+
+/* profile sections */
+
+.profile-sections {
+    display: grid;
+
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+
+    gap: 30px;
+}
+
+/* score history */
+
+.score-history {
+    margin-top: 0;
+
+    padding: 25px;
+
+    border: 1px solid #52d63a;
+    border-radius: 18px;
+
+    background: rgba(10,10,10,.9);
+
+    min-height: 350px;
+
+    transition: 0.25s ease;
+}
+
+.score-history:hover {
+    box-shadow:
+        0 0 10px rgba(82,214,58,.14);
+}
+
+/* section titles */
+
+.score-history h2 {
+    text-align: center;
+
+    margin-bottom: 24px;
+
+    color: #52d63a;
+    font-size: 1.45rem;
+
+    /* reduced glow */
+    text-shadow:
+        0 0 3px rgba(82,214,58,.22);
+}
+
+/* cards wrapper */
+
+.score-history-list {
+    display: flex;
+    flex-direction: column;
+
+    gap: 18px;
+
+    max-height: 700px;
+
+    overflow-y: auto;
+
+    padding-right: 8px;
+}
+
+/* scrollbar */
+
+.score-history-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.score-history-list::-webkit-scrollbar-track {
+    background: rgba(255,255,255,.05);
+    border-radius: 20px;
+}
+
+.score-history-list::-webkit-scrollbar-thumb {
+    background: #52d63a;
+    border-radius: 20px;
+}
+
+/* score cards */
+
+.score-card {
+    padding: 18px;
+
+    border: 1px solid #526d3a;
+    border-radius: 14px;
+
+    background: rgba(0,0,0,.78);
+
+    transition: 0.25s ease;
+}
+
+.score-card:hover {
+    transform: scale(1.01);
+
+    box-shadow:
+        0 0 8px rgba(82,214,58,.16);
+}
+
+.score-card p {
+    margin: 10px 0;
+
+    color: white;
+
+    line-height: 1.5;
+    font-size: 0.95rem;
+}
+
+.score-card strong {
+    color: #52d63a;
+}
+
+/* error message */
+
+#message {
+    margin-top: 25px;
+
+    text-align: center;
+
+    color: red;
+}
+
+/* mobile responsive */
+
+@media screen and (max-width: 900px) {
+
+    .profile-box {
+        padding: 22px;
+    }
+
+    .profile-box h1 {
+        font-size: 2rem;
+    }
+
+    .profile-sections {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .score-history {
+        min-height: auto;
+    }
+}
+
+/* cyber pulse */
+
+@keyframes cyberPulse {
+
+    0% {
+        transform: rotate(15deg) scale(1);
+    }
+
+    50% {
+        transform: rotate(15deg) scale(1.08);
+    }
+
+    100% {
+        transform: rotate(15deg) scale(1);
+    }
+}

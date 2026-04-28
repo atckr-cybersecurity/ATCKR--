@@ -5,7 +5,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="homepage.css">
+<link rel="stylesheet" href="profile.css">
 </head>
 <body>
     <!-- HEADER -->
@@ -36,9 +36,26 @@
         <div class="login profile-box">
             <h1>My Profile</h1>
 
-            <p><strong>First Name:</strong> <span id="firstName">Loading...</span></p>
-            <p><strong>Last Name:</strong> <span id="lastName">Loading...</span></p>
-            <p><strong>Email:</strong> <span id="email">Loading...</span></p>
+            <div class="profile-info-grid">
+
+                <div class="info-card">
+                    <div class="info-label">First Name</div>
+                    <div class="info-value" id="firstName">Loading...</div>
+                </div>
+            
+                <div class="info-card">
+                    <div class="info-label">Last Name</div>
+                    <div class="info-value" id="lastName">Loading...</div>
+                </div>
+            
+                <div class="info-card">
+                    <div class="info-label">Email</div>
+                    <div class="info-value" id="email">Loading...</div>
+                </div>
+            
+            </div>
+
+            <div class="profile-sections"></div>
 
             <div class="score-history">
                 <h2>Previous Game Scores</h2>
@@ -46,7 +63,28 @@
                     <p>Loading scores...</p>
                 </div>
             </div>
-
+            
+            <div class="score-history">
+                <h2>Text or Trap Quiz Answers</h2>
+                <div id="textortrapQuizList" class="score-history-list">
+                    <p>Loading Text or Trap quiz review...</p>
+                </div>
+            </div>
+            
+            <div class="score-history">
+                <h2>Cyber Defense Frenzy Quiz Answers</h2>
+                <div id="cyberdefenseQuizList" class="score-history-list">
+                    <p>Loading Cyber Defense quiz review...</p>
+                </div>
+            </div>
+            
+            <div class="score-history">
+                <h2>Final Quiz Questions & Answers</h2>
+                <div id="finalQuizList" class="score-history-list">
+                    <p>Loading final quiz review...</p>
+                </div>
+            </div>
+        </div>
             <p id="message"></p>
         </div>
     </main>
@@ -96,6 +134,9 @@
         const message = document.getElementById("message");
         const logoutBtn = document.getElementById("logoutBtn");
         const scoreHistoryList = document.getElementById("scoreHistoryList");
+        const textortrapQuizList = document.getElementById("textortrapQuizList");
+        const cyberdefenseQuizList = document.getElementById("cyberdefenseQuizList");
+        const finalQuizList = document.getElementById("finalQuizList");
 
         async function loadScoreHistory(userId) {
             scoreHistoryList.innerHTML = "<p>Loading scores...</p>";
@@ -137,7 +178,104 @@
                 scoreHistoryList.innerHTML = "<p>Could not load scores.</p>";
             }
         }
+        function loadPopupQuizReview(listEl, reviewKey, scoreKey, dateKey, emptyMessage, titleOutOf = 3) {
+    listEl.innerHTML = `<p>${emptyMessage}</p>`;
 
+    try {
+        const savedReview = localStorage.getItem(reviewKey);
+        const savedScore = localStorage.getItem(scoreKey);
+        const savedDate = localStorage.getItem(dateKey);
+
+        if (!savedReview) {
+            listEl.innerHTML = `<p>${emptyMessage}</p>`;
+            return;
+        }
+
+        const review = JSON.parse(savedReview);
+
+        if (!review || !review.length) {
+            listEl.innerHTML = `<p>${emptyMessage}</p>`;
+            return;
+        }
+
+        listEl.innerHTML = "";
+
+        const summaryCard = document.createElement("div");
+        summaryCard.className = "score-card";
+        summaryCard.innerHTML = `
+            <p><strong>Score:</strong> ${savedScore ?? 0}/${titleOutOf}</p>
+            <p><strong>Date:</strong> ${savedDate || "No date"}</p>
+        `;
+        listEl.appendChild(summaryCard);
+
+        review.forEach((item, index) => {
+            const quizCard = document.createElement("div");
+            quizCard.className = "score-card";
+
+            quizCard.innerHTML = `
+                <p><strong>Question ${index + 1}:</strong> ${item.question}</p>
+                <p><strong>Your Answer:</strong> ${item.userAnswer ?? "No answer"}</p>
+                <p><strong>Correct Answer:</strong> ${item.correctAnswer ?? ""}</p>
+                <p><strong>Result:</strong> ${item.isCorrect ? "Correct" : "Wrong"}</p>
+            `;
+
+            listEl.appendChild(quizCard);
+        });
+    } catch (error) {
+        console.error("Could not load popup quiz review:", error);
+        listEl.innerHTML = "<p>Could not load quiz review.</p>";
+    }
+}
+
+function loadFinalQuizReview() {
+    finalQuizList.innerHTML = "<p>Loading final quiz review...</p>";
+
+    try {
+        const savedReview = localStorage.getItem("finalquiz_review");
+        const savedScore = localStorage.getItem("finalquiz_score");
+        const savedDate = localStorage.getItem("finalquiz_date");
+        const savedPassed = localStorage.getItem("finalquiz_passed");
+
+        if (!savedReview) {
+            finalQuizList.innerHTML = "<p>No final quiz review saved yet.</p>";
+            return;
+        }
+
+        const review = JSON.parse(savedReview);
+
+        if (!review || !review.length) {
+            finalQuizList.innerHTML = "<p>No final quiz review saved yet.</p>";
+            return;
+        }
+
+        finalQuizList.innerHTML = "";
+
+        const summaryCard = document.createElement("div");
+        summaryCard.className = "score-card";
+        summaryCard.innerHTML = `
+            <p><strong>Final Score:</strong> ${savedScore ?? 0}/10</p>
+            <p><strong>Passed:</strong> ${savedPassed === "true" ? "Yes" : "No"}</p>
+            <p><strong>Date:</strong> ${savedDate || "No date"}</p>
+        `;
+        finalQuizList.appendChild(summaryCard);
+
+        review.forEach((item, index) => {
+            const quizCard = document.createElement("div");
+            quizCard.className = "score-card";
+
+            quizCard.innerHTML = `
+                <p><strong>Question ${index + 1}:</strong> ${item.question}</p>
+                <p><strong>Answer:</strong> ${item.correctAnswer}</p>
+                <p><strong>Topic:</strong> ${item.topic}</p>
+            `;
+
+            finalQuizList.appendChild(quizCard);
+        });
+    } catch (error) {
+        console.error("Could not load final quiz review:", error);
+        finalQuizList.innerHTML = "<p>Could not load final quiz review.</p>";
+    }
+}
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
                 window.location.href = "login.html";
@@ -160,6 +298,24 @@
                 }
 
                 await loadScoreHistory(user.uid);
+
+loadPopupQuizReview(
+    textortrapQuizList,
+    "textortrap_quiz_review",
+    "textortrap_quiz_score",
+    "textortrap_quiz_date",
+    "No Text or Trap quiz review saved yet."
+);
+
+loadPopupQuizReview(
+    cyberdefenseQuizList,
+    "cyberdefense_quiz_review",
+    "cyberdefense_quiz_score",
+    "cyberdefense_quiz_date",
+    "No Cyber Defense quiz review saved yet."
+);
+
+await loadFinalQuizReview();
             } catch (error) {
                 message.textContent = error.message;
             }

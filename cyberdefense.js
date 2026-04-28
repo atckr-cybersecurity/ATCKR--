@@ -1618,43 +1618,42 @@ const G = {
       const answer3 = form.querySelector('input[name="Question 3"]:checked');
       const result = document.getElementById("quizResult");
   
-      if (!answer1 || !answer2 || !answer3) {
-        result.textContent = "Please answer all 3 questions.";
-        return;
-      }
+      const review = [
+        {
+          question: "Which defense can detect hidden spyware?",
+          userAnswer: answer1.value,
+          correctAnswer: "Antivirus",
+          isCorrect: answer1.value === "Antivirus",
+          topic: "Cyber Defense Frenzy"
+        },
+        {
+          question: "Why are software updates important for cybersecurity?",
+          userAnswer: answer2.value,
+          correctAnswer: "They patch security holes",
+          isCorrect: answer2.value === "They patch security holes",
+          topic: "Cyber Defense Frenzy"
+        },
+        {
+          question: "What does a firewall do?",
+          userAnswer: answer3.value,
+          correctAnswer: "Monitors and filters network traffic",
+          isCorrect: answer3.value === "Monitors and filters network traffic",
+          topic: "Cyber Defense Frenzy"
+        }
+      ];
   
-      let score = 0;
+      let score = review.filter(q => q.isCorrect).length;
   
-      if (answer1.value === "Antivirus") score++;
-      if (answer2.value === "They patch security holes") score++;
-      if (answer3.value === "Monitors and filters network traffic") score++;
+      localStorage.setItem("cyberdefense_quiz_review", JSON.stringify(review));
+      localStorage.setItem("cyberdefense_quiz_score", score);
+      localStorage.setItem("cyberdefense_quiz_date", new Date().toLocaleString());
   
       document.getElementById("quizScoreInput").value = score + "/3";
   
       const formData = new FormData(form);
+      await fetch(form.action, { method: "POST", body: formData });
   
-      result.textContent = "Submitting answers...";
-  
-      try {
-        const response = await fetch(form.action, {
-          method: "POST",
-          body: formData,
-          headers: {
-            "Accept": "application/json"
-          }
-        });
-  
-        if (response.ok) {
-          result.textContent = "You got " + score + "/3 correct. Answers sent!";
-          setTimeout(() => {
-            closeQuiz();
-          }, 1200);
-        } else {
-          result.textContent = "You got " + score + "/3 correct, but the form did not send.";
-        }
-      } catch (error) {
-        result.textContent = "You got " + score + "/3 correct, but there was a sending error.";
-      }
+      result.textContent = "You got " + score + "/3 correct!";
     });
   }
   

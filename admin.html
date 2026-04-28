@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin | ATCKR</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="admin.css">
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <header class="main-header">
+
+        <div class="header-top">
+
+            <div class="logo-wrap">
+                <a href="index.html">
+                    <img src="photos/atckr.png" alt="ATCKR Logo" class="logo">
+                </a>
+            </div>
+
+            <div class="header-title">
+                <h1>ATCKR ADMIN PANEL</h1>
+            </div>
+
+        </div>
+
+        <nav class="nav-bar">
+            <a href="index.html">Home</a>
+            <a href="profile.html">Profile</a>
+            <a href="admin.html">Admin</a>
+        </nav>
+
+    </header>
+
+    <!-- MAIN -->
+    <main>
+
+        <div class="admin-container">
+
+            <h2 class="admin-title">Registered Users</h2>
+
+            <!-- SEARCH -->
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="Search by name or email..."
+            >
+
+            <!-- USERS -->
+            <div id="usersList" class="users-list">
+                Loading users...
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- USER POPUP -->
+    <div id="userPopup" class="popup-overlay">
+
+        <div class="popup-box">
+
+            <h2 id="popupName">User Name</h2>
+
+            <div class="popup-info">
+                <p><strong>Email:</strong> <span id="popupEmail"></span></p>
+
+                <p><strong>User ID:</strong> <span id="popupUid"></span></p>
+
+                <p><strong>Created:</strong> <span id="popupCreated"></span></p>
+            </div>
+
+            <div class="popup-buttons">
+
+                <button id="printCertificateBtn">
+                    Print Certificate
+                </button>
+
+                <button id="closePopupBtn" class="close-btn">
+                    Close
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- FIREBASE -->
+    <script type="module">
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+
+        import {
+            getAuth,
+            onAuthStateChanged
+        } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+
+        import {
+            getFirestore,
+            collection,
+            getDocs,
+            doc,
+            getDoc
+        } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD_XcFPJnBqu95_YjWTRsjkWnwU5wHlA-s",
+            authDomain: "atckr-c6d3d.firebaseapp.com",
+            projectId: "atckr-c6d3d",
+            storageBucket: "atckr-c6d3d.firebasestorage.app",
+            messagingSenderId: "834010699386",
+            appId: "1:834010699386:web:04134df603f29119010dc3",
+            measurementId: "G-SHF21PMJ8R"
+        };
+
+        const app = initializeApp(firebaseConfig);
+
+        const auth = getAuth(app);
+
+        const db = getFirestore(app);
+
+        const usersList = document.getElementById("usersList");
+
+        const searchInput = document.getElementById("searchInput");
+
+        const userPopup = document.getElementById("userPopup");
+
+        const popupName = document.getElementById("popupName");
+
+        const popupEmail = document.getElementById("popupEmail");
+
+        const popupUid = document.getElementById("popupUid");
+
+        const popupCreated = document.getElementById("popupCreated");
+
+        const closePopupBtn = document.getElementById("closePopupBtn");
+
+        const printCertificateBtn = document.getElementById("printCertificateBtn");
+
+        let allUsers = [];
+
+        let selectedUser = null;
+
+        // AUTH CHECK
+        onAuthStateChanged(auth, async (user) => {
+
+            if (!user) {
+                window.location.href = "login.html";
+                return;
+            }
+
+            const adminRef = doc(db, "admins", user.uid);
+
+            const adminSnap = await getDoc(adminRef);
+
+            if (!adminSnap.exists()) {
+                alert("Admins only.");
+                window.location.href = "index.html";
+                return;
+            }
+
+            loadUsers();
+        });
+
+        // LOAD USERS
+        async function loadUsers() {
+
+            usersList.innerHTML = "Loading users...";
+
+            const snapshot = await getDocs(collection(db, "users"));
+
+            allUsers = [];
+
+            snapshot.forEach((docSnap) => {
+
+                allUsers.push({
+                    id: docSnap.id,
+                    ...docSnap.data()
+                });
+
+            });
+
+            displayUsers(allUsers);
+        }
+
+        // DISPLAY USERS
+        function displayUsers(users) {
+
+            usersList.innerHTML = "";
+
+            if (users.length === 0) {
+                usersList.innerHTML = "No users found.";
+                return;
+            }
+
+            users.forEach((user) => {
+
+                const fullName =
+                    `${user.firstName || ""} ${user.lastName || ""}`.trim();
+
+                const card = document.createElement("div");
+
+                card.className = "user-card";
+
+                card.innerHTML = `
+                    <div class="user-name">
+                        ${fullName || "No Name Saved"}
+                    </div>
+
+                    <div class="user-email">
+                        ${user.email || "No Email"}
+                    </div>
+                `;
+
+                card.addEventListener("click", () => {
+                    openPopup(user);
+                });
+
+                usersList.appendChild(card);
+
+            });
+
+        }
+
+        // SEARCH
+        searchInput.addEventListener("input", () => {
+
+            const value = searchInput.value.toLowerCase();
+
+            const filteredUsers = allUsers.filter((user) => {
+
+                const fullName =
+                    `${user.firstName || ""} ${user.lastName || ""}`.toLowerCase();
+
+                const email =
+                    String(user.email || "").toLowerCase();
+
+                return (
+                    fullName.includes(value) ||
+                    email.includes(value)
+                );
+
+            });
+
+            displayUsers(filteredUsers);
+
+        });
+
+        // OPEN POPUP
+        function openPopup(user) {
+
+            selectedUser = user;
+
+            const fullName =
+                `${user.firstName || ""} ${user.lastName || ""}`.trim();
+
+            popupName.textContent =
+                fullName || "No Name Saved";
+
+            popupEmail.textContent =
+                user.email || "No Email";
+
+            popupUid.textContent =
+                user.uid || user.id;
+
+            popupCreated.textContent =
+                user.createdAt || "No Date";
+
+            userPopup.style.display = "flex";
+        }
+
+        // CLOSE POPUP
+        closePopupBtn.addEventListener("click", () => {
+
+            userPopup.style.display = "none";
+
+        });
+
+        // PRINT CERTIFICATE
+        printCertificateBtn.addEventListener("click", () => {
+
+            if (!selectedUser) return;
+
+            const fullName =
+                `${selectedUser.firstName || ""} ${selectedUser.lastName || ""}`.trim();
+
+            localStorage.setItem(
+                "student_name",
+                fullName || "Cyber Guardian"
+            );
+
+            localStorage.setItem(
+                "finalquiz_date",
+                new Date().toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric"
+                })
+            );
+
+            window.open("certificate.html", "_blank");
+
+        });
+
+    </script>
+
+</body>
+
+</html>

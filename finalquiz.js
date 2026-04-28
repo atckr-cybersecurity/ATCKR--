@@ -318,50 +318,60 @@ function checkAnswer(index, btn) {
   if (Q.answered) return;
   const q = QUESTIONS[Q.index];
 
+  Q.answered = true;
+  document.querySelectorAll('.choice-btn').forEach(b => b.disabled = true);
+
   if (index === q.correct) {
-    Q.answered = true;
     Q.correct++;
     Q.byTopic[q.topic]++;
 
     Q.review.push({
       topic: q.topicLabel,
       question: q.q,
-      correctAnswer: q.choices[q.correct]
+      correctAnswer: q.choices[q.correct],
+      userAnswer: q.choices[index],
+      wasCorrect: true
     });
 
     btn.classList.add('correct');
-    document.querySelectorAll('.choice-btn').forEach(b => b.disabled = true);
     document.getElementById('liveScore').textContent = Q.correct;
 
     const fb = document.getElementById('feedbackMsg');
     fb.textContent = q.fact;
-    fb.className   = 'feedback-msg ok';
+    fb.className = 'feedback-msg ok';
 
-    // Streak combo at milestones
-    if (Q.correct === 5)  showCombo('Halfway there! 🔥');
+    if (Q.correct === 5) showCombo('Halfway there! 🔥');
     if (Q.correct === 10) showCombo('PERFECT! 🌟');
-
-    setTimeout(() => {
-      if (Q.index + 1 >= QUESTIONS.length) {
-        endQuiz();
-      } else {
-        Q.index++;
-        loadQuestion();
-      }
-    }, 2000);
 
   } else {
     btn.classList.add('wrong');
-    setTimeout(() => btn.classList.remove('wrong'), 500);
+
+    const choiceButtons = document.querySelectorAll('.choice-btn');
+    if (choiceButtons[q.correct]) {
+      choiceButtons[q.correct].classList.add('correct');
+    }
+
+    Q.review.push({
+      topic: q.topicLabel,
+      question: q.q,
+      correctAnswer: q.choices[q.correct],
+      userAnswer: q.choices[index],
+      wasCorrect: false
+    });
 
     const fb = document.getElementById('feedbackMsg');
-    fb.textContent = 'Not quite — try again! ' + (Q.hintsLeft > 0 ? 'Use a hint if you need help. 💡' : 'Think carefully!');
-    fb.className   = 'feedback-msg no';
-
-    if (!Q.hintShown && Q.hintsLeft > 0) {
-      setTimeout(useHint, 700);
-    }
+    fb.textContent = '❌ Wrong. The correct answer was: ' + q.choices[q.correct];
+    fb.className = 'feedback-msg no';
   }
+
+  setTimeout(() => {
+    if (Q.index + 1 >= QUESTIONS.length) {
+      endQuiz();
+    } else {
+      Q.index++;
+      loadQuestion();
+    }
+  }, 2000);
 }
 
 

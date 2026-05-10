@@ -6,6 +6,7 @@
    vocab matching, score tracking, streak system,
    audio, and screen navigation for Vocab Blast.
 ===================================================== */
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
 import {
@@ -303,9 +304,11 @@ function startGame() {
   // Shuffle vocab order each playthrough
   G.queue = [...VOCAB].sort(() => Math.random() - 0.5);
 
+  // Show game screen FIRST so canvas has real layout dimensions
   showScreen('s-game');
 
-  // Double rAF: same fix as game1 & game2 so canvas has real dimensions
+  // Double rAF ensures the browser has painted the new screen
+  // before we measure canvas dimensions and start the loop
   requestAnimationFrame(() => requestAnimationFrame(() => {
     initCanvas();
     initInput();
@@ -496,8 +499,8 @@ function update(dt) {
           updateHUD();
           shakeCanvas();
           showWrongExplanation(G.currentWord, 'wrong', v.text);
-          if (G.lives <= 0) { G.gameOver = true; setTimeout(endGame, 2800); return; }
           G.answered = true;
+          if (G.lives <= 0) { G.gameOver = true; setTimeout(endGame, 2800); return; }
           setTimeout(nextRound, 2800);
         }
         break;
@@ -509,7 +512,7 @@ function update(dt) {
   G.bullets = G.bullets.filter(b => b.alive);
 
   // All viruses gone without a correct hit — advance anyway
-  if (G.viruses.every(v => !v.alive) && !G.answered) {
+  if (G.viruses.every(v => !v.alive) && !G.answered && !G.gameOver) {
     G.missed++;
     G.answered = true;
     setTimeout(nextRound, 400);
@@ -526,6 +529,7 @@ function update(dt) {
 }
 
 function nextRound() {
+  if (G.gameOver) return;
   G.round++;
   G.answered = false;
   if (G.round >= G.queue.length) { endGame(); return; }
@@ -1023,13 +1027,17 @@ async function endGame() {
   localStorage.setItem('game3_score',  G.score);
   localStorage.setItem('game3_stars',  stars);
 
-  await saveGameScoreToProfile(stars, survived, pct);
-
-  showScreen('s-results');
+  try {
+    await saveGameScoreToProfile(stars, survived, pct);
+  } catch (e) {
+    console.error('Score save failed:', e);
+  } finally {
+    showScreen('s-results');
+  }
 }
 
-function quiz() {
-  window.location.href = 'finalquiz.html';
+function goHome() {
+  window.location.href = '../pages/index.html';
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -1038,6 +1046,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // Nothing else needed here.
 });
 
+// Expose functions globally so HTML onclick handlers can reach them
+// (ES modules are scoped — window assignment is required)
 window.startGame = startGame;
-window.quiz = quiz;
+window.quiz      = quiz;
+window.goHome    = goHome;
 // This program was made to some degree with Claude. Human coding was added for effects and to ensure accuracy.

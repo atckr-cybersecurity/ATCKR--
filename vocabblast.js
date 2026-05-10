@@ -1,3 +1,4 @@
+
 /* =====================================================
    ATCKR — Vocab Blast (Game 3)
    Script file: game3.js
@@ -435,12 +436,12 @@ function update(dt) {
       G.lives--;
       G.streak = 0;
       sndLeak();
+      showToast('⚠️ The right answer slipped through! -1 life');
       burst(v.xDraw, v.y, '#ff4757', 12);
       updateHUD();
-      showWrongExplanation(G.currentWord, 'missed', null);
-      if (G.lives <= 0) { G.gameOver = true; setTimeout(endGame, 2800); return; }
+      if (G.lives <= 0) { G.gameOver = true; setTimeout(endGame, 700); return; }
       G.answered = true;
-      setTimeout(nextRound, 2800);
+      setTimeout(nextRound, 850);
       return;
     }
 
@@ -493,12 +494,10 @@ function update(dt) {
           G.missed++;
           sndWrong();
           burst(v.xDraw, v.y, '#ff4757', 12);
+          showToast('❌ Wrong definition! -1 life');
           updateHUD();
           shakeCanvas();
-          showWrongExplanation(G.currentWord, 'wrong', v.text);
-          if (G.lives <= 0) { G.gameOver = true; setTimeout(endGame, 2800); return; }
-          G.answered = true;
-          setTimeout(nextRound, 2800);
+          if (G.lives <= 0) { G.gameOver = true; setTimeout(endGame, 700); return; }
         }
         break;
       }
@@ -916,19 +915,19 @@ const WORD_EXPLANATIONS = {
     }
   }
 };
-
-
-
+ 
+ 
+ 
 function showWrongExplanation(entry, mode, shotText) {
   const old = document.getElementById('wrongExplainCard');
   if (old) old.remove();
-
+ 
   const data = WORD_EXPLANATIONS[entry.word] || {
     plain: 'The correct answer was: "' + entry.correct + '"',
     tip:   '💡 Keep practicing — you\'ll get it next time!',
     wrongReasons: {}
   };
-
+ 
   let whyWrong = '';
   if (mode === 'wrong' && shotText) {
     const reason = data.wrongReasons[shotText];
@@ -942,7 +941,7 @@ function showWrongExplanation(entry, mode, shotText) {
       <span style="color:#f0dede;">Look for the bubble that matches the word shown at the bottom and blast it before it gets away.</span>
     </div>`;
   }
-
+ 
   const card = document.createElement('div');
   card.id = 'wrongExplainCard';
   card.style.cssText = [
@@ -957,7 +956,7 @@ function showWrongExplanation(entry, mode, shotText) {
     'font-family:"Nunito",sans-serif',
     'animation:wrongCardIn 0.35s cubic-bezier(0.34,1.56,0.64,1)'
   ].join(';');
-
+ 
   card.innerHTML = `
     <div style="font-size:1.6rem;margin-bottom:6px;">❌</div>
     <div style="font-family:'Fredoka One',cursive;font-size:1rem;color:#ff4757;margin-bottom:10px;text-shadow:0 0 10px rgba(255,71,87,0.4);">
@@ -971,9 +970,9 @@ function showWrongExplanation(entry, mode, shotText) {
     <div style="font-size:0.74rem;color:#cbd5e1;line-height:1.7;text-align:left;margin-bottom:10px;">${data.plain}</div>
     <div style="font-size:0.7rem;color:#fcd34d;background:rgba(252,211,77,0.06);border:1px solid rgba(252,211,77,0.2);border-radius:8px;padding:8px 12px;line-height:1.6;text-align:left;">${data.tip}</div>
   `;
-
+ 
   document.body.appendChild(card);
-
+ 
   setTimeout(() => {
     if (card.parentNode) {
       card.style.transition = 'opacity 0.3s';
@@ -982,7 +981,6 @@ function showWrongExplanation(entry, mode, shotText) {
     }
   }, 2500);
 }
-
 
 /* -------------------------------------------------------
    END GAME

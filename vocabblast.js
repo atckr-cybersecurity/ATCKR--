@@ -6,7 +6,6 @@
    vocab matching, score tracking, streak system,
    audio, and screen navigation for Vocab Blast.
 ===================================================== */
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
 import {
@@ -304,11 +303,9 @@ function startGame() {
   // Shuffle vocab order each playthrough
   G.queue = [...VOCAB].sort(() => Math.random() - 0.5);
 
-  // Show game screen FIRST so canvas has real layout dimensions
   showScreen('s-game');
 
-  // Double rAF ensures the browser has painted the new screen
-  // before we measure canvas dimensions and start the loop
+  // Double rAF: same fix as game1 & game2 so canvas has real dimensions
   requestAnimationFrame(() => requestAnimationFrame(() => {
     initCanvas();
     initInput();
@@ -364,7 +361,7 @@ function loadNextWord() {
       x:         spacing * (i + 1),
       y:         -80 - i * 45,           // staggered start positions
       xDraw:     spacing * (i + 1),
-      speed:     20.75 + G.round * 2.25,  // faster each round
+      speed:     28 + G.round * 2.5,       // faster each round
       wobble:    Math.random() * Math.PI * 2,
       wobbleSpd: 0.7 + Math.random() * 0.6,
       alive:     true
@@ -499,8 +496,8 @@ function update(dt) {
           updateHUD();
           shakeCanvas();
           showWrongExplanation(G.currentWord, 'wrong', v.text);
-          G.answered = true;
           if (G.lives <= 0) { G.gameOver = true; setTimeout(endGame, 2800); return; }
+          G.answered = true;
           setTimeout(nextRound, 2800);
         }
         break;
@@ -512,7 +509,7 @@ function update(dt) {
   G.bullets = G.bullets.filter(b => b.alive);
 
   // All viruses gone without a correct hit — advance anyway
-  if (G.viruses.every(v => !v.alive) && !G.answered && !G.gameOver) {
+  if (G.viruses.every(v => !v.alive) && !G.answered) {
     G.missed++;
     G.answered = true;
     setTimeout(nextRound, 400);
@@ -529,7 +526,6 @@ function update(dt) {
 }
 
 function nextRound() {
-  if (G.gameOver) return;
   G.round++;
   G.answered = false;
   if (G.round >= G.queue.length) { endGame(); return; }
@@ -802,14 +798,13 @@ function spawnConfetti() {
   }
 }
 
-
 /* -------------------------------------------------------
    WRONG ANSWER EXPLANATIONS
-   Shows a card explaining what the student chose,
-   why it was wrong, the correct answer, a plain-English
-   explanation of the word, and a practical tip.
-   mode: 'wrong'  = shot the wrong bubble
-         'missed' = correct bubble slipped through
+   Shows a friendly card explaining:
+   - What the word actually means
+   - Why the answer they picked was wrong (if they shot a wrong one)
+   - Why the correct answer was right
+   mode: 'wrong' = shot the wrong bubble | 'missed' = correct slipped through
 ------------------------------------------------------- */
 const WORD_EXPLANATIONS = {
   'Phishing': {
@@ -922,6 +917,8 @@ const WORD_EXPLANATIONS = {
   }
 };
 
+
+
 function showWrongExplanation(entry, mode, shotText) {
   const old = document.getElementById('wrongExplainCard');
   if (old) old.remove();
@@ -935,14 +932,14 @@ function showWrongExplanation(entry, mode, shotText) {
   let whyWrong = '';
   if (mode === 'wrong' && shotText) {
     const reason = data.wrongReasons[shotText];
-    whyWrong = `<div style="font-size:0.88rem;color:#fca5a5;background:rgba(255,71,87,0.08);border:1px solid rgba(255,71,87,0.25);border-radius:8px;padding:9px 12px;margin-bottom:10px;line-height:1.6;text-align:left;">
+    whyWrong = `<div style="font-size:0.74rem;color:#fca5a5;background:rgba(255,71,87,0.08);border:1px solid rgba(255,71,87,0.25);border-radius:8px;padding:9px 12px;margin-bottom:10px;line-height:1.6;text-align:left;">
       ❌ <strong style="color:#ff4757;">You chose:</strong> "${shotText}"<br><br>
       <span style="color:#f0dede;">${reason || 'That\'s a decoy — it belongs to a different vocab term!'}</span>
     </div>`;
   } else if (mode === 'missed') {
-    whyWrong = `<div style="font-size:0.88rem;color:#fca5a5;background:rgba(255,71,87,0.08);border:1px solid rgba(255,71,87,0.25);border-radius:8px;padding:9px 12px;margin-bottom:10px;line-height:1.6;text-align:left;">
+    whyWrong = `<div style="font-size:0.74rem;color:#fca5a5;background:rgba(255,71,87,0.08);border:1px solid rgba(255,71,87,0.25);border-radius:8px;padding:9px 12px;margin-bottom:10px;line-height:1.6;text-align:left;">
       ⚠️ <strong style="color:#ff4757;">The correct definition slipped past you!</strong><br>
-      <span style="color:#f0dede;">Look for the bubble that matches the word at the bottom and blast it before it gets away.</span>
+      <span style="color:#f0dede;">Look for the bubble that matches the word shown at the bottom and blast it before it gets away.</span>
     </div>`;
   }
 
@@ -962,17 +959,17 @@ function showWrongExplanation(entry, mode, shotText) {
   ].join(';');
 
   card.innerHTML = `
-    <div style="font-size:2rem;margin-bottom:6px;">❌</div>
-    <div style="font-family:'Fredoka One',cursive;font-size:1.2rem;color:#ff4757;margin-bottom:10px;text-shadow:0 0 10px rgba(255,71,87,0.4);">
+    <div style="font-size:1.6rem;margin-bottom:6px;">❌</div>
+    <div style="font-family:'Fredoka One',cursive;font-size:1rem;color:#ff4757;margin-bottom:10px;text-shadow:0 0 10px rgba(255,71,87,0.4);">
       Oops — -1 Life!
     </div>
     ${whyWrong}
     <div style="background:rgba(0,229,255,0.06);border:1px solid rgba(0,229,255,0.2);border-radius:8px;padding:9px 12px;margin-bottom:10px;text-align:left;">
-      <div style="font-size:0.78rem;font-weight:900;color:#00e5ff;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px;">✅ Correct answer for "${entry.word}":</div>
-      <div style="font-size:0.9rem;color:#b0f0ff;line-height:1.6;">${entry.correct}</div>
+      <div style="font-size:0.68rem;font-weight:900;color:#00e5ff;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px;">✅ Correct answer for "${entry.word}":</div>
+      <div style="font-size:0.76rem;color:#b0f0ff;line-height:1.6;">${entry.correct}</div>
     </div>
-    <div style="font-size:0.88rem;color:#cbd5e1;line-height:1.7;text-align:left;margin-bottom:10px;">${data.plain}</div>
-    <div style="font-size:0.84rem;color:#fcd34d;background:rgba(252,211,77,0.06);border:1px solid rgba(252,211,77,0.2);border-radius:8px;padding:8px 12px;line-height:1.6;text-align:left;">${data.tip}</div>
+    <div style="font-size:0.74rem;color:#cbd5e1;line-height:1.7;text-align:left;margin-bottom:10px;">${data.plain}</div>
+    <div style="font-size:0.7rem;color:#fcd34d;background:rgba(252,211,77,0.06);border:1px solid rgba(252,211,77,0.2);border-radius:8px;padding:8px 12px;line-height:1.6;text-align:left;">${data.tip}</div>
   `;
 
   document.body.appendChild(card);
@@ -1027,20 +1024,13 @@ async function endGame() {
   localStorage.setItem('game3_score',  G.score);
   localStorage.setItem('game3_stars',  stars);
 
-  try {
-    await saveGameScoreToProfile(stars, survived, pct);
-  } catch (e) {
-    console.error('Score save failed:', e);
-  } finally {
-    showScreen('s-results');
-  }
-}
-function quiz() {
-   window.location.href = 'finalquiz.html';
+  await saveGameScoreToProfile(stars, survived, pct);
+
+  showScreen('s-results');
 }
 
-function goHome() {
-  window.location.href = 'index.html';
+function quiz() {
+  window.location.href = 'finalquiz.html';
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -1049,9 +1039,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Nothing else needed here.
 });
 
-// Expose functions globally so HTML onclick handlers can reach them
-// (ES modules are scoped — window assignment is required)
 window.startGame = startGame;
-window.quiz      = quiz;
-window.goHome    = goHome;
+window.quiz = quiz;
 // This program was made to some degree with Claude. Human coding was added for effects and to ensure accuracy.

@@ -1035,9 +1035,12 @@ async function endGame() {
     showScreen('s-results');
   }
 }
+function quiz() {
+   window.location.href = 'finalquiz.html';
+}
 
 function goHome() {
-  window.location.href = 'finalquiz.html';
+  window.location.href = 'index.html';
 }
 
 document.addEventListener('DOMContentLoaded', () => {

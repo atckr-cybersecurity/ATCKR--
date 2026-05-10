@@ -435,12 +435,12 @@ function update(dt) {
       G.lives--;
       G.streak = 0;
       sndLeak();
-      showToast('⚠️ The right answer slipped through! -1 life');
       burst(v.xDraw, v.y, '#ff4757', 12);
       updateHUD();
-      if (G.lives <= 0) { G.gameOver = true; setTimeout(endGame, 700); return; }
+      showWrongExplanation(G.currentWord, 'missed', null);
+      if (G.lives <= 0) { G.gameOver = true; setTimeout(endGame, 2800); return; }
       G.answered = true;
-      setTimeout(nextRound, 850);
+      setTimeout(nextRound, 2800);
       return;
     }
 
@@ -493,10 +493,12 @@ function update(dt) {
           G.missed++;
           sndWrong();
           burst(v.xDraw, v.y, '#ff4757', 12);
-          showToast('❌ Wrong definition! -1 life');
           updateHUD();
           shakeCanvas();
-          if (G.lives <= 0) { G.gameOver = true; setTimeout(endGame, 700); return; }
+          showWrongExplanation(G.currentWord, 'wrong', v.text);
+          if (G.lives <= 0) { G.gameOver = true; setTimeout(endGame, 2800); return; }
+          G.answered = true;
+          setTimeout(nextRound, 2800);
         }
         break;
       }
@@ -798,6 +800,190 @@ function spawnConfetti() {
 
 
 /* -------------------------------------------------------
+   WRONG ANSWER EXPLANATIONS
+   Shows a card explaining what the student chose,
+   why it was wrong, the correct answer, a plain-English
+   explanation of the word, and a practical tip.
+   mode: 'wrong'  = shot the wrong bubble
+         'missed' = correct bubble slipped through
+------------------------------------------------------- */
+const WORD_EXPLANATIONS = {
+  'Phishing': {
+    plain:   '🎣 Phishing is when a hacker sends a fake message pretending to be your bank, school, or a friend — just to trick you into handing over your password or personal info. The name comes from "fishing" because they cast a hook and wait for you to bite!',
+    tip:     '💡 If a message feels urgent or asks for personal info out of nowhere, stop before clicking anything. Real companies never ask for your password this way.',
+    wrongReasons: {
+      'Software that secretly records your online activity.':
+        'That\'s actually Spyware — it hides on your device and watches what you do silently. Phishing is a trick using fake messages, not hidden software.',
+      'A system that monitors and filters network traffic.':
+        'That\'s a Firewall — it acts like a security guard for your network. Phishing is a deception tactic, not a security tool.',
+      'Converting data into a coded format only you can read.':
+        'That\'s Encryption — it scrambles data to keep it private. Phishing is about tricking people, not coding data.'
+    }
+  },
+  'Malware': {
+    plain:   '🦠 "Malware" is short for MALicious softWARE — it\'s any program built to cause harm. Viruses, spyware, ransomware, and worms are all types of malware sneaking around your device.',
+    tip:     '💡 Only download apps and files from trusted sources — that\'s how most malware gets onto devices in the first place!',
+    wrongReasons: {
+      'A fake message that tricks you into revealing passwords.':
+        'That\'s Phishing — it uses fake messages to fool you. Malware is actual harmful software, not a message.',
+      'A security check using two forms of verification.':
+        'That\'s Two-Factor Authentication — a protection tool. Malware is the threat, not the defense.',
+      'When private data is exposed without permission.':
+        'That\'s a Data Breach — when information gets stolen or leaked. Malware is often the software that causes it.'
+    }
+  },
+  'Firewall': {
+    plain:   '🧱 A Firewall is like a security guard for your internet connection. It checks all the traffic going in and out, and blocks anything that looks suspicious or unauthorized.',
+    tip:     '💡 Your home router has a built-in firewall — that\'s one reason random people on the internet can\'t just connect straight to your computer!',
+    wrongReasons: {
+      'Harmful software that damages or steals data from systems.':
+        'That\'s Malware — the bad stuff a firewall is designed to block. The firewall itself is the protector, not the threat.',
+      'A tactic used to trick people into revealing secret info.':
+        'That\'s Social Engineering — a psychological trick on people. A firewall deals with network traffic, not human behavior.',
+      'Software that secretly watches your computer activity.':
+        'That\'s Spyware — it hides and watches. A firewall is a visible, active gatekeeper for your network.'
+    }
+  },
+  'Encryption': {
+    plain:   '🔒 Encryption scrambles your messages or files into a secret code. Even if a hacker intercepts them, all they see is gibberish — only someone with the right key can unscramble and read it.',
+    tip:     '💡 See a padlock 🔒 in your browser\'s address bar? That means the website is using encryption to protect the info you send it!',
+    wrongReasons: {
+      'A security guard that filters all incoming network traffic.':
+        'That\'s a Firewall — it blocks threats at the door. Encryption scrambles the data itself so no one can read it even if they steal it.',
+      'When sensitive data is exposed or stolen by hackers.':
+        'That\'s a Data Breach — when something goes wrong. Encryption is actually what helps prevent breaches from being useful to hackers.',
+      'Software that copies itself and spreads to other computers.':
+        'That sounds like a Worm — a type of malware. Encryption is a safety tool that protects your data, not a threat.'
+    }
+  },
+  'Two-Factor Authentication': {
+    plain:   '📱 Two-Factor Authentication (2FA) means you need TWO things to log in — usually your password AND a code sent to your phone. Even if a hacker steals your password, they still can\'t get in without your phone.',
+    tip:     '💡 Turn on 2FA for your email and gaming accounts — it takes about 30 seconds to set up and stops most hackers cold!',
+    wrongReasons: {
+      'Malware that locks your files and demands money to unlock.':
+        'That\'s Ransomware — a dangerous type of malware. 2FA is a login protection method, not a virus.',
+      'Manipulating someone into giving up confidential information.':
+        'That\'s Social Engineering — a psychological trick. 2FA is a technical security layer that protects your accounts.',
+      'Harmful software designed to disrupt or damage systems.':
+        'That\'s Malware. Two-Factor Authentication is a way to protect your accounts — it\'s a defense, not a threat.'
+    }
+  },
+  'Spyware': {
+    plain:   '👀 Spyware hides on your device and secretly watches everything — which websites you visit, what you type, even your passwords — then sends it all to a hacker without you knowing.',
+    tip:     '💡 Antivirus software can detect and remove spyware. Keep yours updated and run regular scans!',
+    wrongReasons: {
+      'A security system that filters incoming and outgoing traffic.':
+        'That\'s a Firewall — it protects your network. Spyware sneaks past defenses and hides inside your device.',
+      'Converting your data into a secret coded format.':
+        'That\'s Encryption — a safety tool. Spyware does the opposite — it secretly steals your private data.',
+      'When protected data is accessed without authorization.':
+        'That\'s a Data Breach. Spyware is the hidden software that collects data and causes one.'
+    }
+  },
+  'Data Breach': {
+    plain:   '📂 A Data Breach happens when a hacker breaks into a company\'s system and steals private information — like names, emails, passwords, or credit card numbers. Even big companies like Sony and Facebook have had breaches!',
+    tip:     '💡 If a website you use gets breached, change your password immediately — especially if you reuse that password on other sites!',
+    wrongReasons: {
+      'Software that secretly watches what you type and browse.':
+        'That\'s Spyware — one tool that can lead to a breach. A data breach is the event itself: the moment private info gets exposed.',
+      'Requires two identity checks before granting access.':
+        'That\'s Two-Factor Authentication — it actually helps prevent breaches. A data breach is what happens when protection fails.',
+      'Harmful software designed to steal or damage data.':
+        'That\'s Malware — often the weapon used in an attack. The breach is the result: the information that was stolen or exposed.'
+    }
+  },
+  'Social Engineering': {
+    plain:   '🎭 Social Engineering is when a hacker tricks a PERSON instead of hacking a computer. They might pretend to be your IT teacher, a friend, or tech support to get you to hand over your password or click a dangerous link.',
+    tip:     '💡 If someone you don\'t fully recognize is asking for private info — even if they sound official — always check with a trusted adult first!',
+    wrongReasons: {
+      'A system that monitors and controls your network traffic.':
+        'That\'s a Firewall — a technical tool. Social engineering bypasses technology entirely by tricking real people.',
+      'When private data is leaked or stolen without permission.':
+        'That\'s a Data Breach. Social engineering is the manipulation method — the deception used to cause the breach.',
+      'Software designed to secretly record your computer activity.':
+        'That\'s Spyware — hidden software. Social engineering works through conversation and psychology, not code.'
+    }
+  },
+  'Password': {
+    plain:   '🔑 A Password is your secret key — a string of characters only you know. It proves to a website or app that you\'re really you. "password123" is the most hacked password in the world, so make yours long, random, and unique!',
+    tip:     '💡 Use a different password for every account. If one gets hacked, the others stay safe. A password manager can remember them all for you!',
+    wrongReasons: {
+      'Harmful software that disrupts or damages computer systems.':
+        'That\'s Malware. A password is your personal secret key — malware is what tries to steal it.',
+      'Blocking unauthorized access using network traffic rules.':
+        'That\'s a Firewall. A password is a personal authentication secret, not a network security system.',
+      'Requiring two forms of identity verification to log in.':
+        'That\'s Two-Factor Authentication. A password is just one factor — 2FA adds a second verification step on top of it.'
+    }
+  }
+};
+
+function showWrongExplanation(entry, mode, shotText) {
+  const old = document.getElementById('wrongExplainCard');
+  if (old) old.remove();
+
+  const data = WORD_EXPLANATIONS[entry.word] || {
+    plain: 'The correct answer was: "' + entry.correct + '"',
+    tip:   '💡 Keep practicing — you\'ll get it next time!',
+    wrongReasons: {}
+  };
+
+  let whyWrong = '';
+  if (mode === 'wrong' && shotText) {
+    const reason = data.wrongReasons[shotText];
+    whyWrong = `<div style="font-size:0.74rem;color:#fca5a5;background:rgba(255,71,87,0.08);border:1px solid rgba(255,71,87,0.25);border-radius:8px;padding:9px 12px;margin-bottom:10px;line-height:1.6;text-align:left;">
+      ❌ <strong style="color:#ff4757;">You chose:</strong> "${shotText}"<br><br>
+      <span style="color:#f0dede;">${reason || 'That\'s a decoy — it belongs to a different vocab term!'}</span>
+    </div>`;
+  } else if (mode === 'missed') {
+    whyWrong = `<div style="font-size:0.74rem;color:#fca5a5;background:rgba(255,71,87,0.08);border:1px solid rgba(255,71,87,0.25);border-radius:8px;padding:9px 12px;margin-bottom:10px;line-height:1.6;text-align:left;">
+      ⚠️ <strong style="color:#ff4757;">The correct definition slipped past you!</strong><br>
+      <span style="color:#f0dede;">Look for the bubble that matches the word shown at the bottom and blast it before it gets away.</span>
+    </div>`;
+  }
+
+  const card = document.createElement('div');
+  card.id = 'wrongExplainCard';
+  card.style.cssText = [
+    'position:fixed', 'top:50%', 'left:50%',
+    'transform:translate(-50%,-50%)',
+    'background:#0d1f33',
+    'border:2px solid rgba(255,71,87,0.55)',
+    'border-radius:16px', 'padding:20px 22px',
+    'z-index:800', 'max-width:430px', 'width:92%',
+    'text-align:center',
+    'box-shadow:0 0 40px rgba(255,71,87,0.15)',
+    'font-family:"Nunito",sans-serif',
+    'animation:wrongCardIn 0.35s cubic-bezier(0.34,1.56,0.64,1)'
+  ].join(';');
+
+  card.innerHTML = `
+    <div style="font-size:1.6rem;margin-bottom:6px;">❌</div>
+    <div style="font-family:'Fredoka One',cursive;font-size:1rem;color:#ff4757;margin-bottom:10px;text-shadow:0 0 10px rgba(255,71,87,0.4);">
+      Oops — -1 Life!
+    </div>
+    ${whyWrong}
+    <div style="background:rgba(0,229,255,0.06);border:1px solid rgba(0,229,255,0.2);border-radius:8px;padding:9px 12px;margin-bottom:10px;text-align:left;">
+      <div style="font-size:0.68rem;font-weight:900;color:#00e5ff;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px;">✅ Correct answer for "${entry.word}":</div>
+      <div style="font-size:0.76rem;color:#b0f0ff;line-height:1.6;">${entry.correct}</div>
+    </div>
+    <div style="font-size:0.74rem;color:#cbd5e1;line-height:1.7;text-align:left;margin-bottom:10px;">${data.plain}</div>
+    <div style="font-size:0.7rem;color:#fcd34d;background:rgba(252,211,77,0.06);border:1px solid rgba(252,211,77,0.2);border-radius:8px;padding:8px 12px;line-height:1.6;text-align:left;">${data.tip}</div>
+  `;
+
+  document.body.appendChild(card);
+
+  setTimeout(() => {
+    if (card.parentNode) {
+      card.style.transition = 'opacity 0.3s';
+      card.style.opacity    = '0';
+      setTimeout(() => card.remove(), 300);
+    }
+  }, 2500);
+}
+
+
+/* -------------------------------------------------------
    END GAME
    Calculates stars, populates results screen,
    saves to localStorage — mirrors game1 & game2.
@@ -855,3 +1041,4 @@ document.addEventListener('DOMContentLoaded', () => {
 window.startGame = startGame;
 window.quiz = quiz;
 // This program was made to some degree with Claude. Human coding was added for effects and to ensure accuracy.
+

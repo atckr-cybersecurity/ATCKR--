@@ -1037,7 +1037,7 @@ async function endGame() {
 }
 
 function goHome() {
-  window.location.href = '../pages/index.html';
+  window.location.href = 'finalquiz.html';
 }
 
 document.addEventListener('DOMContentLoaded', () => {

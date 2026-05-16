@@ -1040,3 +1040,31 @@ document.addEventListener('DOMContentLoaded', () => {
 window.startGame = startGame;
 window.quiz = quiz;
 // This program was made to some degree with Claude. Human coding was added for effects and to ensure accuracy.
+
+
+/* -------------------------------------------------------
+   ADMIN: ALL-CORRECT END GAME
+   Called by the dev toolbar "End (All Correct)" button.
+   Sets G to a perfect run — all words correct, max score,
+   no lives lost — then calls endGame().
+------------------------------------------------------- */
+window.__adminEndGame = function () {
+  const total  = VOCAB.length;
+  G.gameOver   = true;
+  G.queue      = [...VOCAB];
+  G.lives      = 3;
+  G.score      = total * 200;
+  G.correct    = total;
+  G.missed     = 0;
+  G.streak     = total;
+  G.best       = total;
+  G.bonus      = total * 50;
+  G.round      = total;
+  // Stop the canvas animation loop
+  if (animId) cancelAnimationFrame(animId);
+  endGame();
+};
+
+window.__onAdminReady = function () {
+  // Vocab Blast has no post-game quiz modal — nothing extra needed
+};

@@ -1669,5 +1669,70 @@ const G = {
     window.sellTower = sellTower;
     window.goNext = goNext;
     window.closeQuiz = closeQuiz;
-  
+
+  /* -------------------------------------------------------
+     ADMIN: ALL-CORRECT END GAME
+     Called by the dev toolbar "End (All Correct)" button.
+     Increments loopId to kill the running game loop,
+     sets G to a perfect run, then calls endGame().
+  ------------------------------------------------------- */
+  window.__adminEndGame = function () {
+    loopId++;           // causes the current gameLoop() to self-terminate
+    G.answered  = true;
+    G.wave      = G.totalWaves;
+    G.lives     = 20;
+    G.kills     = 50;
+    G.score     = 5000;
+    G.streak    = G.totalWaves;
+    G.best      = G.totalWaves;
+    G.bonus     = 500;
+    endGame();
+  };
+
+  /* -------------------------------------------------------
+     ADMIN: HIGHLIGHT CORRECT QUIZ ANSWERS
+     Adds a green ✔ badge next to the correct answer in
+     the post-game quiz modal — only visible to admins.
+  ------------------------------------------------------- */
+  function adminHighlightQuizAnswers() {
+    const correctAnswers = {
+      'Question 1': 'Antivirus',
+      'Question 2': 'They patch security holes',
+      'Question 3': 'Monitors and filters network traffic'
+    };
+    const form = document.getElementById('quizForm');
+    if (!form) return;
+    Object.entries(correctAnswers).forEach(([name, correctValue]) => {
+      form.querySelectorAll(`input[name="${name}"]`).forEach(radio => {
+        const old = radio.parentElement.querySelector('.admin-correct-badge');
+        if (old) old.remove();
+        if (radio.value === correctValue) {
+          const badge = document.createElement('span');
+          badge.className = 'admin-correct-badge';
+          badge.textContent = ' ✔ correct';
+          badge.style.cssText = [
+            'font-size:0.7rem', 'font-weight:900', 'color:#52d63a',
+            'background:rgba(82,214,58,0.12)', 'border:1px solid #52d63a55',
+            'border-radius:4px', 'padding:1px 6px', 'margin-left:6px',
+            'letter-spacing:0.05em', 'font-family:Share Tech Mono,monospace'
+          ].join(';');
+          radio.parentElement.appendChild(badge);
+        }
+      });
+    });
+  }
+
+  // Wrap openQuiz to highlight answers whenever admin opens it
+  const _origOpenQuiz = openQuiz;
+  window.openQuiz = function () {
+    _origOpenQuiz();
+    if (window.__atckrIsAdmin) setTimeout(adminHighlightQuizAnswers, 80);
+  };
+
+  // Called by dev-toolbar after admin is confirmed — highlight if modal already open
+  window.__onAdminReady = function () {
+    const modal = document.getElementById('quizModal');
+    if (modal && modal.classList.contains('show')) adminHighlightQuizAnswers();
+  };
+
   // This program was made to some degree with Claude. Human coding was added for effects and to ensure accuracy.

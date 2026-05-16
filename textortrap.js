@@ -755,3 +755,87 @@ window.useHint = useHint;
 window.nextQ = nextQ;
 window.goNext = goNext;
 window.closeQuiz = closeQuiz;
+
+
+/* -------------------------------------------------------
+   ADMIN: ALL-CORRECT END GAME
+   Called by the dev toolbar "End (All Correct)" button.
+   Sets G state to a perfect run, then triggers endGame().
+------------------------------------------------------- */
+window.__adminEndGame = function () {
+  const total  = SCENARIOS.length;
+  G.scenarios  = [...SCENARIOS]; // use full set
+  G.index      = total;
+  G.score      = total * 100 + 50 * total; // max possible points
+  G.lives      = 3;
+  G.streak     = total;
+  G.best       = total;
+  G.correct    = total;
+  G.hints      = 3;
+  G.bonus      = 50 * total;
+  G.answered   = true;
+  endGame();
+};
+
+
+/* -------------------------------------------------------
+   ADMIN: HIGHLIGHT CORRECT QUIZ ANSWERS
+   When the quiz modal opens, labels each correct answer
+   with a green ✔ badge — only visible to admins.
+------------------------------------------------------- */
+function adminHighlightQuizAnswers() {
+  // Correct answers keyed by radio name
+  const correctAnswers = {
+    'Question 1': 'It creates urgency and tells you to act fast',
+    'Question 2': 'Check the URL carefully first',
+    'Question 3': 'Ignore it and verify through the real company website'
+  };
+
+  const form = document.getElementById('quizForm');
+  if (!form) return;
+
+  Object.entries(correctAnswers).forEach(([name, correctValue]) => {
+    form.querySelectorAll(`input[name="${name}"]`).forEach(radio => {
+      // Remove any old badge
+      const old = radio.parentElement.querySelector('.admin-correct-badge');
+      if (old) old.remove();
+
+      if (radio.value === correctValue) {
+        const badge = document.createElement('span');
+        badge.className = 'admin-correct-badge';
+        badge.textContent = ' ✔ correct';
+        badge.style.cssText = [
+          'font-size:0.7rem',
+          'font-weight:900',
+          'color:#52d63a',
+          'background:rgba(82,214,58,0.12)',
+          'border:1px solid #52d63a55',
+          'border-radius:4px',
+          'padding:1px 6px',
+          'margin-left:6px',
+          'letter-spacing:0.05em',
+          'font-family:Share Tech Mono,monospace'
+        ].join(';');
+        radio.parentElement.appendChild(badge);
+      }
+    });
+  });
+}
+
+// Hook into openQuiz so badges appear every time the modal opens
+const _origOpenQuiz = openQuiz;
+window.openQuiz = function () {
+  _origOpenQuiz();
+  if (window.__atckrIsAdmin) {
+    // Slight delay to let modal render
+    setTimeout(adminHighlightQuizAnswers, 80);
+  }
+};
+
+// If the toolbar confirms admin after the quiz is already open, highlight now
+window.__onAdminReady = function () {
+  const modal = document.getElementById('quizModal');
+  if (modal && modal.classList.contains('show')) {
+    adminHighlightQuizAnswers();
+  }
+};

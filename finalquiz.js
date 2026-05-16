@@ -506,3 +506,30 @@ function getCertificate() {
 function retryQuiz() {
   showScreen('s-intro');
 }
+
+
+/* -------------------------------------------------------
+   ADMIN: ALL-CORRECT END QUIZ
+   Called by the dev toolbar "End (All Correct)" button.
+   Sets Q state to a perfect 10/10 run and calls endQuiz().
+------------------------------------------------------- */
+window.__adminEndGame = function () {
+  Q.studentName        = document.getElementById('studentName')?.value.trim() || 'Admin';
+  Q.index              = QUESTIONS.length;
+  Q.correct            = QUESTIONS.length;
+  Q.hintsLeft          = 3;
+  Q.hintsUsed          = 0;
+  Q.byTopic            = { phishing: 4, defense: 3, vocab: 3 };
+  Q.review             = QUESTIONS.map(q => ({
+    topic:         q.topicLabel,
+    question:      q.q,
+    correctAnswer: q.choices[q.correct],
+    userAnswer:    q.choices[q.correct],
+    wasCorrect:    true
+  }));
+  endQuiz();
+};
+
+window.__onAdminReady = function () {
+  // Final quiz has no inline quiz modal — nothing extra needed
+};
